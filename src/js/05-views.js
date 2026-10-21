@@ -36,22 +36,23 @@ function vToday(){
   const row=m=>missionRow(m);
   const evening=hr>=15, lastW=lastRaw(), g=goalPlan();
   const left=Math.round(Math.abs(T.kcal-ft.kcal)), over=ft.kcal>T.kcal;
+  const strDone=(G(k).strength||[]).reduce((a,x)=>a+(x.min||0),0), moveMin=walkMin(k)+stretchMin(k)+strDone, movePlan=pl.walk+pl.stretch+((pl.strDay||pl.energy===3)?18:0), movePct=movePlan?moveMin/movePlan:0;
   const ev=eveState(); const dayStart=new Date().setHours(0,0,0,0);
   const eatenSinceWin=(d.food||[]).some(f=>f.t>=dayStart&&(new Date(f.t).getHours()*60+new Date(f.t).getMinutes())>=ev.ws);
   const ctx={k,d,pl,T,ft,hr,ev,missions,medMin:medMin(k),eatenSinceWin,doneN:done.length,total:missions.length};
   const nextCard=d.energy?`<div class="c12">${nextCardHtml(ctx)}</div>`:''; const eveTop=eveningCardHtml(ctx);
   const stale=(Date.now()-(S.meta.lastBackup||S.meta.created))>14*864e5 && Object.keys(S.days).length>=7;
-  const hs=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl">${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
+  const hs=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl"><i class="hsd ${cls||''}"></i>${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
   return `<div class="grid">
     ${stale?`<div class="c12"><div class="banner" style="margin:0">${ico('info').replace('<svg','<svg width="20" height="20"')}<div class="grow">Your data lives only in this browser and has not been backed up in over two weeks.</div><button class="btn sm" data-act="exportjson">Back up now</button></div></div>`:''}
     ${checkin||nextCard}
     ${eveTop}
     <div class="c12"><section class="hero">
-      ${ring(ft.kcal/T.kcal,196,over?'#f3b94f':'#4ea3ff',left,over?'kcal over':'kcal left',9,over?'#f3b94f':'#27d3ee')}
+      ${activityRings([{pct:ft.kcal/T.kcal,c1:over?'#f3b94f':'#4ea3ff',c2:over?'#ffd990':'#27d3ee'},{pct:ft.protein/T.protein,c1:'#9d8cff',c2:'#c9bfff'},{pct:movePct,c1:'#3fdba5',c2:'#9bf2cf'}],216,`<div class="mono ctr-n">${cu(left)}</div><div class="lbl" style="margin-top:4px">${over?'kcal over':'kcal left'}</div>`)}
       <div class="hero-stats">
-        ${hs('Eaten',Math.round(ft.kcal),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}
-        ${hs('Protein',Math.round(ft.protein),'of '+T.protein+' g',ft.protein/T.protein,'v')}
-        ${hs('Water',d.water||0,'of '+pl.water+' glasses',(d.water||0)/pl.water)}
+        ${hs('Eaten',cu(Math.round(ft.kcal)),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}
+        ${hs('Protein',cu(Math.round(ft.protein)),'of '+T.protein+' g',ft.protein/T.protein,'v')}
+        ${hs('Movement',cu(moveMin),'of '+movePlan+' min',movePct,'g')}
       </div></section>
       <div class="row wrap mt16" style="gap:10px"><button class="btn pri" data-act="goto" data-v="fuel">${ico('plus')} Add food</button><button class="btn ghost" data-act="sub" data-k="fuel" data-v="meals" data-go="fuel">Meal ideas</button></div>
       ${ft.n?macroBreak(ft):''}</div>
@@ -81,10 +82,10 @@ function vFuel(){
     const k=fuelDay, d=G(k), ft=foodTotals(k), food=d.food||[];
     const groups=['b','l','d','s','e'].map(m=>({m,items:food.filter(f=>(f.meal||'s')===m)})).filter(g=>g.items.length);
     const over=ft.kcal>T.kcal, left=Math.round(Math.abs(T.kcal-ft.kcal));
-    const fh=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl">${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
+    const fh=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl"><i class="hsd ${cls||''}"></i>${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
     body=`<div class="grid"><div class="c12"><div class="row between" style="margin-bottom:22px"><button class="icon-btn" data-act="fday" data-v="-1" aria-label="Previous day">${ico('chevL')}</button><b>${k===TODAY()?'Today':fmtDL(k)}</b><button class="icon-btn" data-act="fday" data-v="1" aria-label="Next day" ${k>=TODAY()?'disabled style="opacity:.3"':''}>${ico('chevR')}</button></div>
-      <section class="hero">${ring(ft.kcal/T.kcal,172,over?'#f3b94f':'#4ea3ff',left,over?'kcal over':'kcal left',9,over?'#f3b94f':'#27d3ee')}
-        <div class="hero-stats">${fh('Eaten',Math.round(ft.kcal),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}${fh('Protein',Math.round(ft.protein),'of '+T.protein+' g',ft.protein/T.protein,'v')}</div></section>
+      <section class="hero">${activityRings([{pct:ft.kcal/T.kcal,c1:over?'#f3b94f':'#4ea3ff',c2:over?'#ffd990':'#27d3ee'},{pct:ft.protein/T.protein,c1:'#9d8cff',c2:'#c9bfff'}],184,`<div class="mono ctr-n" style="font-size:34px">${cu(left)}</div><div class="lbl" style="margin-top:4px">${over?'kcal over':'kcal left'}</div>`)}
+        <div class="hero-stats">${fh('Eaten',cu(Math.round(ft.kcal)),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}${fh('Protein',cu(Math.round(ft.protein)),'of '+T.protein+' g',ft.protein/T.protein,'v')}</div></section>
       ${macroBreak(ft)}<p class="note mt16">Target ${T.kcal} kcal comes from an estimated daily burn of ${T.tdee} minus ${T.deficit}. It recalculates as your trend weight drops.</p></div>
     <div class="c12">${panel('Add food','',`${myMealPills()}${S.favs.length?`<div class="lbl mt16">Favorites</div><div class="pill-row mt8">${S.favs.map((f,i)=>`<span class="pill" style="display:inline-flex;gap:8px;align-items:center"><span data-act="favadd" data-i="${i}" style="cursor:pointer">${esc(f.name)} <span class="mono dim">${f.kcal}</span></span><span data-act="favdel" data-i="${i}" style="cursor:pointer;color:var(--dim)" title="Remove">&times;</span></span>`).join('')}</div>`:''}
       <form data-form="food" class="grid" style="gap:12px;grid-template-columns:repeat(6,minmax(0,1fr));${myMealPills()||S.favs.length?'margin-top:22px':''}">
@@ -149,7 +150,7 @@ function vMind(){
   const doc=new DOMParser().parseFromString('<div id="r">'+vMindAll()+'</div>','text/html');
   const secs=[...doc.querySelectorAll('section.panel')].filter(x=>tab[2].includes(x.querySelector('h3').textContent.trim()));
   secs.sort((x,y)=>tab[2].indexOf(x.querySelector('h3').textContent.trim())-tab[2].indexOf(y.querySelector('h3').textContent.trim()));
-  return `<div class="row" style="margin-bottom:16px">${segCtl('mind',MIND_TABS.map(t=>[t[0],t[1]]),tab[0])}</div><div class="grid">${secs.map(x=>`<div class="c12">${x.outerHTML}</div>`).join('')}</div>`;
+  return `<div class="row" style="margin-bottom:16px">${segCtl('mind',MIND_TABS.map(t=>[t[0],t[1]]),tab[0])}</div><div class="grid">${secs.map((x,i)=>`<div class="c12">${x.outerHTML}</div>`+(tab[0]==='urge'&&i===0?`<div class="c12">${panel('When urges hit','',urgeClockHtml())}</div>`:'')).join('')}</div>`;
 }
 
 /* ---------- DAY LOG (view and edit anything) ---------- */
@@ -306,10 +307,10 @@ function vProgress(){
   return `<div class="grid">
     <div class="c12"><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:26px 20px">
       ${[['Trend weight',r1(ph.w),'lb',null],['Trend change',(ph.lost>=0?'-':'+')+r1(Math.abs(ph.lost)),'lb',null],['Weekly rate',rate!=null?r1(rate):'--','lb/wk',null],['To phase 1',r1(ph.toP1),'lb',null],['To goal',r1(ph.toGoal),'lb',null]].map(s=>`<div><div class="stat"><div class="lbl">${s[0]}</div><div class="v">${s[1]}<small>${s[2]}</small></div></div></div>`).join('')}</div></div>
+    <div class="c12">${panel('Your journey','',journeyMap()+(ph.phase===3||ph.toGoal<1?`<div class="banner mt16">${ico('info').replace('<svg','<svg width="20" height="20"')}<div>You are at your goal range. ${S.settings.mode==='maintain'?'Maintenance mode is on: calories are set to your burn. If your trend rises more than 3 lb above goal, return to a small deficit for two weeks.':'Switch to maintenance in Settings to raise calories to your burn gradually.'}</div></div>`:''))}</div>
     <div class="c12">${goalPanel()}</div>
     <div class="c12">${panel('Weight trend','scale',`<div class="row between wrap" style="margin-bottom:10px"><div class="seg">${[[30,'30d'],[90,'90d'],[180,'6m'],[0,'All']].map(o=>`<button class="${progRange===o[0]?'on':''}" data-act="range" data-v="${o[0]}">${o[1]}</button>`).join('')}</div><button class="btn sm pri" data-act="log" data-kind="weight">${ico('plus')} Weigh-in</button></div>${wchart}<p class="note mt8">The blue line smooths daily water swings. Judge progress by the trend, not by single scale readings.</p>`)}</div>
-    <div class="c12">${panel('Roadmap','flag',`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${road.map(r=>`<div><div class="row between"><b>${r[0]}</b><span class="mono mut">${r[1]}</span></div><div class="bar" style="height:8px"><i style="width:${Math.round(r[3]*100)}%"></i></div><div class="note mt8">${r[2]}${r[4]&&r[3]<1?' &middot; ETA '+fmtD(r[4]):r[3]>=1?' &middot; done':''}</div></div>`).join('')}</div>
-      ${ph.phase===3||ph.toGoal<1?`<div class="banner mt16">${ico('info').replace('<svg','<svg width="20" height="20"')}<div>You are at your goal range. ${S.settings.mode==='maintain'?'Maintenance mode is on: calories are set to your burn. If your trend rises more than 3 lb above goal, return to a small deficit for two weeks.':'Switch to maintenance in Settings to raise calories to your burn gradually.'}</div></div>`:''}`)}</div>
+    <div class="c12">${panel('Consistency','',consistencyHtml(),'','12 weeks')}</div>
     <div class="c6 t6">${panel('Waist','ruler',ser('waist','#22d3ee')+`<div class="row between mt8"><span class="note">${(()=>{const w=Object.keys(S.days).filter(k=>S.days[k].waist>0).sort();return w.length?S.days[w[w.length-1]].waist+' in latest':'Not logged';})()}</span><button class="btn sm" data-act="log" data-kind="waist">${ico('plus')} Log</button></div>`)}</div>
     <div class="c6 t6">${panel('Sleep','moon',ser('sleepH','#9381ff')+`<div class="row between mt8"><span class="note">Hours per night</span><button class="btn sm" data-act="log" data-kind="sleep">${ico('plus')} Log</button></div>`)}</div>
     <div class="c6 t6">${panel('Blood pressure and pulse','pulse',(bpPts.length>1? chartBox('bpc',{series:[{color:'#ff6d7e',pts:bpPts.map(b=>({x:b.x,y:b.y,d:b.d})),main:true,dots:true,dotOp:.9,last:true}],refs:[{y:130,label:'130',color:'#f6b94c'}],tipfn:b=>`<span class="k">${fmtD(fromNum(b.x))}</span> <b>${b.y}/${b.d}</b>`},150):`<div class="empty" style="padding:14px"><div>Needs 2 or more readings</div></div>`)+`<div class="row between mt8"><span class="note">${bpNote||'Systolic shown'}</span><button class="btn sm" data-act="log" data-kind="bp">${ico('plus')} Log</button></div>`)}</div>

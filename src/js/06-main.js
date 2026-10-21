@@ -10,13 +10,13 @@ function render(){
   if(!S.profile) return; renderedDay=TODAY();
   const y=window.scrollY; const t=titleOf();
   $('#ttl').textContent=t[0]; $('#sub').textContent=t[1];
-  $('#view').innerHTML=VIEWS[view]();
+  const vw=$('#view'); vw.innerHTML=VIEWS[view](); const anim=ANIM.pending; ANIM.pending=false; vw.classList.toggle('anim',anim);
   $$('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===view));
-  mountCharts($('#view'));
+  mountCharts(vw); mountGraphics(vw); if(anim) animateNumbers(vw);
   const lv=levelInfo(); $('#rankmini').innerHTML=`<div class="row" style="gap:10px">${emblem(lv.lv,38)}<div class="grow"><div class="row"><b>${lv.name}</b></div><div class="note">Lv ${lv.lv} &middot; ${lv.xp} XP</div></div></div><div class="bar"><i style="width:${Math.round(lv.pct*100)}%"></i></div>`;
   window.scrollTo(0,y);
 }
-function go(v){ if(DR&&DR.preview) stopDrone(1); if(v==='log') logDay=TODAY(); view=v; history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
+function go(v){ ANIM.pending=true; if(DR&&DR.preview) stopDrone(1); if(v==='log') logDay=TODAY(); view=v; history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
 
 /* ---------- settings view ---------- */
 function vSettings(){
@@ -140,7 +140,7 @@ const ACT={
   closeSheet(){closeSheet();},
   async stageClose(){ if(await uiConfirm('Progress in this session will not be saved.',{title:'End this session?',yes:'End session',no:'Keep going'})) closeStage(); },
   goto(t){ go(t.dataset.v); },
-  sub(t){ if(t.dataset.k==='fuel'||t.dataset.k==='move'||t.dataset.k==='mind') sub[t.dataset.k]=t.dataset.v; if(t.dataset.go) view=t.dataset.go; render(); },
+  sub(t){ ANIM.pending=true; if(t.dataset.k==='fuel'||t.dataset.k==='move'||t.dataset.k==='mind') sub[t.dataset.k]=t.dataset.v; if(t.dataset.go) view=t.dataset.go; render(); },
   energy(t){ const v=+t.dataset.v; const d=D(TODAY()); if(v===0) delete d.energy; else d.energy=v; touch(v?'Check-in saved':''); },
   walk(t){ walkStage(+t.dataset.m); },
   stretch(t){ stretchStage(t.dataset.id); },
@@ -274,4 +274,4 @@ function boot(){
 function rollover(){ if(S&&S.profile&&dk()!==renderedDay&&!$('#stage.open')){ fuelDay=TODAY(); render(); } }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) rollover(); }); window.addEventListener('focus',rollover); setInterval(rollover,60000);
 window.addEventListener('DOMContentLoaded',boot);
-window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(VIEWS[h]&&h!==view&&S&&S.profile){ view=h; render(); window.scrollTo(0,0); } });
+window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(VIEWS[h]&&h!==view&&S&&S.profile){ ANIM.pending=true; view=h; render(); window.scrollTo(0,0); } });

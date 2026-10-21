@@ -40,10 +40,10 @@ const ICOL=['#22d3ee','#3b9cff','#9381ff','#f6b94c','#38d9a0','#ff8fb1'];
 function macroSplit(t){ const pk=t.p*4, ck=t.c*4, fk=t.f*9, tot=pk+ck+fk; return {pk,ck,fk,tot,pp:tot?pk/tot:0,cp:tot?ck/tot:0,fp:tot?fk/tot:0}; }
 function donut(m,size,center,sub){
   const r=(size-16)/2, c=2*Math.PI*r; let off=0; const seg=[[m.pp,MCOL.p],[m.cp,MCOL.c],[m.fp,MCOL.f]];
-  let arcs=''; seg.forEach(([v,col])=>{ if(v>0.001){ const len=Math.max(0,v*c-2); arcs+=`<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="14" stroke-dasharray="${len.toFixed(2)} ${(c-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${size/2} ${size/2})"/>`; } off+=v*c; });
+  let arcs=''; seg.forEach(([v,col])=>{ if(v>0.001){ const len=Math.max(0,v*c-2); arcs+=`<circle class="arc" style="--c:${c.toFixed(2)}" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="14" stroke-dasharray="${len.toFixed(2)} ${(c-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${size/2} ${size/2})"/>`; } off+=v*c; });
   return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(125,160,215,.14)" stroke-width="14"/>${arcs}</svg><div class="ctr"><div class="mono" style="font-size:20px;font-weight:600">${center}</div><div class="lbl" style="margin-top:1px">${sub}</div></div></div>`;
 }
-function macroBar(m,h=8){ return `<div style="display:flex;gap:2px;height:${h}px;border-radius:${h}px;overflow:hidden;background:rgba(125,160,215,.14)">${[[m.pp,MCOL.p],[m.cp,MCOL.c],[m.fp,MCOL.f]].map(([v,c])=>v>0?`<i style="width:${(v*100).toFixed(1)}%;background:${c}"></i>`:'').join('')}</div>`; }
+function macroBar(m,h=8){ return `<div class="mbr" style="display:flex;gap:2px;height:${h}px;border-radius:${h}px;overflow:hidden;background:rgba(125,160,215,.14)">${[[m.pp,MCOL.p],[m.cp,MCOL.c],[m.fp,MCOL.f]].map(([v,c])=>v>0?`<i style="width:${(v*100).toFixed(1)}%;background:${c}"></i>`:'').join('')}</div>`; }
 // Macro breakdown for a day's totals (used under the fuel gauges)
 function macroBreak(ft){
   const t={p:ft.protein,c:ft.carbs,f:ft.fat}, m=macroSplit(t), none=ft.nomac===ft.n;

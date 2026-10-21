@@ -378,6 +378,89 @@ input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 1px var(-
 .wkd.today .wkl{color:var(--txt);font-weight:700}
 .wkl{font-family:var(--mono);font-size:12px;color:var(--dim)}
 
+/* ---------- graphics and motion ---------- */
+.ctr-n{font-size:42px;font-weight:600;letter-spacing:-1px;line-height:1}
+.hsd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;background:var(--blue);vertical-align:1px}
+.hsd.c{background:var(--blue)}.hsd.v{background:var(--violet)}.hsd.g{background:var(--ok)}
+.hs .bar i.c{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+.hs .bar i.g{background:var(--ok)}
+.rarc{filter:drop-shadow(0 0 5px rgba(78,163,255,.3))}
+.ping{transform-box:fill-box;transform-origin:center;animation:ping 2.6s ease-out infinite;opacity:0}
+@keyframes ping{0%{transform:scale(1);opacity:.55}100%{transform:scale(3.8);opacity:0}}
+.donecheck{margin-bottom:12px}
+.dc-c{stroke-dasharray:145;animation:dcdraw 1s ease both}
+.dc-p{stroke-dasharray:1;animation:draw .6s ease .7s both}
+@keyframes dcdraw{from{stroke-dashoffset:145}to{stroke-dashoffset:0}}
+
+/* journey map */
+.jm{padding:6px 0 0}
+.jm-track{position:relative;height:10px;border-radius:10px;background:rgba(160,185,230,.12);margin:50px 10px 0}
+.jm-fill{position:absolute;left:0;top:0;bottom:0;border-radius:10px;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 14px rgba(39,211,238,.35)}
+.jm-node{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--bg);border:2px solid var(--line2)}
+.jm-node.on{border-color:var(--cyan);background:var(--cyan)}
+.jm-you{position:absolute;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--txt);animation:youpulse 2.4s ease-in-out infinite}
+.jm-you em{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);font-style:normal;font-family:var(--mono);font-size:13px;white-space:nowrap;background:var(--panel3);border:1px solid var(--line2);padding:4px 10px;border-radius:999px}
+.jm-you em::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;background:var(--panel3);border-right:1px solid var(--line2);border-bottom:1px solid var(--line2);transform:translateX(-50%) rotate(45deg)}
+.jm-you.l em{left:-6px;transform:none}.jm-you.l em::after{left:18px}
+.jm-you.r em{left:auto;right:-6px;transform:none}.jm-you.r em::after{left:auto;right:12px;transform:rotate(45deg)}
+@keyframes youpulse{0%,100%{box-shadow:0 0 0 4px rgba(78,163,255,.28),0 0 14px rgba(78,163,255,.5)}50%{box-shadow:0 0 0 9px rgba(78,163,255,.08),0 0 22px rgba(78,163,255,.7)}}
+.jm-labs{position:relative;height:84px;margin:22px 10px 0}
+.jm-lab{position:absolute;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;font-size:12.5px;color:var(--mut);white-space:nowrap}
+.jm-lab b{color:var(--txt);font-size:14px}
+.jm-lab.first{transform:none;align-items:flex-start;text-align:left}
+.jm-lab.last{transform:translateX(-100%);align-items:flex-end;text-align:right}
+
+/* consistency heatmap */
+.hm svg{width:100%;max-width:390px;display:block}
+.hm text{font-family:var(--mono);font-size:9.5px;fill:var(--dim)}
+.cell{fill:rgba(160,185,230,.08);transition:opacity .15s}
+.cell.l1{fill:rgba(78,163,255,.3)}.cell.l2{fill:rgba(78,163,255,.55)}.cell.l3{fill:rgba(54,185,240,.78)}.cell.l4{fill:var(--cyan)}
+.cell.today{stroke:var(--txt);stroke-width:1.5}
+.cell:hover{opacity:.7}
+.hm-leg{display:flex;align-items:center;gap:5px;margin-top:10px;font-size:11.5px;color:var(--dim)}
+.hm-leg i{width:13px;height:13px;border-radius:4px;display:inline-block}
+.hm-leg .l0{background:rgba(160,185,230,.08)}.hm-leg .l1{background:rgba(78,163,255,.3)}.hm-leg .l2{background:rgba(78,163,255,.55)}.hm-leg .l3{background:rgba(54,185,240,.78)}.hm-leg .l4{background:var(--cyan)}
+.gtip{position:fixed;z-index:300;pointer-events:none;opacity:0;transition:opacity .1s;background:rgba(8,11,16,.97);border:1px solid var(--line2);border-radius:9px;padding:6px 10px;font-size:12.5px;white-space:nowrap}
+
+/* urge clock */
+.uc svg{width:100%;max-width:340px;display:block;margin:0 auto}
+.uc text{font-family:var(--mono);font-size:11px;fill:var(--dim)}
+.uc .uc-n{font-size:34px;font-weight:600;fill:var(--txt)}
+.uc .uc-s{font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase}
+.wedge{fill:rgba(78,163,255,.7);transition:opacity .15s}
+.wedge.ev{fill:rgba(157,140,255,.9)}
+.wedge.zero{fill:rgba(160,185,230,.07)}
+.wedge:hover{opacity:.7}
+.eveband{stroke:var(--violet);opacity:.9}
+
+/* entrance and draw-in motion: only after navigating, never on every small update */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ringdraw{from{stroke-dashoffset:var(--c)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes wgrow{from{width:0}}
+@keyframes hgrow{from{height:0}}
+@keyframes arcin{from{stroke-dasharray:0 var(--c)}}
+@keyframes wedgein{from{opacity:0;transform:scale(.3)}}
+@keyframes youslide{from{left:0}}
+.anim .grid>*{animation:rise .65s cubic-bezier(.2,.7,.2,1) both}
+.anim .grid>:nth-child(2){animation-delay:.06s}.anim .grid>:nth-child(3){animation-delay:.12s}.anim .grid>:nth-child(4){animation-delay:.18s}
+.anim .grid>:nth-child(5){animation-delay:.24s}.anim .grid>:nth-child(6){animation-delay:.3s}.anim .grid>:nth-child(7){animation-delay:.36s}
+.anim .grid>:nth-child(n+8){animation-delay:.42s}
+.anim .rarc,.anim .ringarc{animation:ringdraw 1.4s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+.anim polyline.draw{stroke-dasharray:1;animation:draw 1.6s ease .1s both}
+.anim .chart path.area{animation:fadein 1.4s .4s both}
+.anim rect.grow{transform-box:fill-box;transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*28ms)}
+.anim .bar i,.anim .mbr i,.anim .mbar i,.anim .jm-fill{animation:wgrow 1.1s cubic-bezier(.2,.8,.2,1) .15s both}
+.anim .wkb i{animation:hgrow .9s cubic-bezier(.2,.8,.2,1) both}
+.anim .wkd:nth-child(2) i{animation-delay:.05s}.anim .wkd:nth-child(3) i{animation-delay:.1s}.anim .wkd:nth-child(4) i{animation-delay:.15s}
+.anim .wkd:nth-child(5) i{animation-delay:.2s}.anim .wkd:nth-child(6) i{animation-delay:.25s}.anim .wkd:nth-child(7) i{animation-delay:.3s}
+.anim .arc{animation:arcin 1.1s cubic-bezier(.2,.8,.2,1) both}
+.anim .cell{animation:fadein .5s both;animation-delay:calc(var(--i,0)*12ms)}
+.anim .wedge{transform-box:view-box;transform-origin:50% 50%;animation:wedgein .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*28ms)}
+.anim .jm-you{animation:youslide 1.4s cubic-bezier(.2,.8,.2,1) both,youpulse 2.4s ease-in-out 1.4s infinite}
+
 </style>
 </head>
 <body>
@@ -1796,15 +1879,15 @@ function sparkline(vals,color='#3b9cff',w=120,h=34){
   const v=vals.filter(x=>x!=null); if(v.length<2) return `<svg width="${w}" height="${h}"></svg>`;
   const mn=Math.min(...v), mx=Math.max(...v), rg=(mx-mn)||1;
   const pts=v.map((y,i)=>`${(i/(v.length-1)*(w-4)+2).toFixed(1)},${(h-4-(y-mn)/rg*(h-8)).toFixed(1)}`);
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3" fill="${color}"/></svg>`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline class="draw" pathLength="1" points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3" fill="${color}"/></svg>`;
 }
 function ring(pct,size,color,main,sub,thick=10,color2){
   const r=(size-thick)/2, c=2*Math.PI*r, p=clamp(pct,0,1);
   const id='rg'+uid();
   return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="${color2||color}"/></linearGradient></defs>
   <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(125,160,215,.14)" stroke-width="${thick}"/>
-  <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})" style="transition:stroke-dashoffset .6s"/></svg>
-  <div class="ctr"><div class="mono" style="font-size:${size>140?30:20}px;font-weight:600">${main}</div><div class="lbl" style="margin-top:2px">${sub}</div></div></div>`;
+  <circle class="ringarc" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})" style="--c:${c.toFixed(1)};transition:stroke-dashoffset .6s"/></svg>
+  <div class="ctr"><div class="mono" style="font-size:${size>140?30:20}px;font-weight:600">${/^\d+$/.test(String(main))?cu(main):main}</div><div class="lbl" style="margin-top:2px">${sub}</div></div></div>`;
 }
 /* chart mounting: placeholders <div class="chart" data-cid="x"></div>, data in CH[x] */
 function chartBox(id,spec,h=220){ CH[id]=Object.assign({h},spec); return `<div class="chart" data-cid="${id}" style="height:${h}px"></div>`; }
@@ -1837,10 +1920,10 @@ function lineSvg(sp,w,h){
   (sp.refs||[]).forEach(r=>{ const y=g.Y(r.y); out+=`<line x1="${g.L}" x2="${w-g.R}" y1="${y}" y2="${y}" stroke="${r.color||'#9381ff'}" stroke-dasharray="5 5" stroke-opacity=".8"/><text x="${w-g.R}" y="${y-5}" text-anchor="end" style="fill:${r.color||'#9381ff'}">${esc(r.label)}</text>`; });
   sp.series.forEach((s,si)=>{
     const P=s.pts.map(p=>[g.X(p.x),g.Y(p.y)]); if(!P.length) return;
-    if(s.area){ const id='ar'+si+uid(); out+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".28"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient></defs><path d="M${P[0][0]},${h-g.B} L${P.map(p=>p.join(',')).join(' L')} L${P[P.length-1][0]},${h-g.B}Z" fill="url(#${id})"/>`; }
-    if(s.line!==false) out+=`<polyline points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width||2.2}" stroke-linejoin="round" stroke-linecap="round" ${s.dash?'stroke-dasharray="4 4"':''}/>`;
+    if(s.area){ const id='ar'+si+uid(); out+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".28"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient></defs><path class="area" d="M${P[0][0]},${h-g.B} L${P.map(p=>p.join(',')).join(' L')} L${P[P.length-1][0]},${h-g.B}Z" fill="url(#${id})"/>`; }
+    if(s.line!==false) out+=`<polyline points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width||2.2}" stroke-linejoin="round" stroke-linecap="round" ${s.dash?'stroke-dasharray="4 4"':'pathLength="1" class="draw"'}/>`;
     if(s.dots) P.forEach(p=>{out+=`<circle cx="${p[0]}" cy="${p[1]}" r="${s.dotR||2.6}" fill="${s.color}" fill-opacity="${s.dotOp||.5}"/>`;});
-    if(s.last){ const q=P[P.length-1]; out+=`<circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${s.color}" stroke="#0b1018" stroke-width="2"/>`; }
+    if(s.last){ const q=P[P.length-1]; out+=`<circle class="ping" cx="${q[0]}" cy="${q[1]}" r="5" fill="${s.color}"/><circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${s.color}" stroke="#0b1018" stroke-width="2"/>`; }
   });
   out+=`<line class="xh" x1="0" x2="0" y1="${g.T}" y2="${h-g.B}" stroke="rgba(233,239,249,.45)" stroke-dasharray="3 3" style="display:none"/><circle class="xd" r="5" fill="#0b1018" stroke="#22d3ee" stroke-width="2" style="display:none"/>`;
   return out+'</svg>';
@@ -1851,7 +1934,7 @@ function barSvg(sp,w,h){
   let o=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
   ticks.forEach(t=>{o+=`<line x1="${L}" x2="${w-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="rgba(125,160,215,.12)"/><text x="${L-6}" y="${Y(t)+3.5}" text-anchor="end">${Math.round(t)}</text>`;});
   sp.bars.forEach((b,i)=>{ const x=L+i*bw+bw*.18, ww=bw*.64, y=Y(b.v), hh=Math.max(0,h-B-y); const col=b.color||sp.color||'#3b9cff';
-    o+=`<rect class="bh" data-i="${i}" x="${x}" y="${y}" width="${ww}" height="${hh}" rx="4" fill="${col}" fill-opacity="${b.v?0.9:0}"/>`;
+    o+=`<rect class="bh grow" style="--i:${i}" data-i="${i}" x="${x}" y="${y}" width="${ww}" height="${hh}" rx="4" fill="${col}" fill-opacity="${b.v?0.9:0}"/>`;
     o+=`<rect x="${L+i*bw}" y="${T}" width="${bw}" height="${h-T-B}" fill="transparent" class="bz" data-i="${i}"/>`;
     if(sp.bars.length<=16 || i%Math.ceil(sp.bars.length/10)===0) o+=`<text x="${x+ww/2}" y="${h-8}" text-anchor="middle">${esc(b.label)}</text>`; });
   if(sp.target){ const y=Y(sp.target); o+=`<line x1="${L}" x2="${w-R}" y1="${y}" y2="${y}" stroke="#9381ff" stroke-dasharray="5 5"/><text x="${w-R}" y="${y-5}" text-anchor="end" style="fill:#9381ff">${esc(sp.targetLabel||'target')}</text>`; }
@@ -2224,22 +2307,23 @@ function vToday(){
   const row=m=>missionRow(m);
   const evening=hr>=15, lastW=lastRaw(), g=goalPlan();
   const left=Math.round(Math.abs(T.kcal-ft.kcal)), over=ft.kcal>T.kcal;
+  const strDone=(G(k).strength||[]).reduce((a,x)=>a+(x.min||0),0), moveMin=walkMin(k)+stretchMin(k)+strDone, movePlan=pl.walk+pl.stretch+((pl.strDay||pl.energy===3)?18:0), movePct=movePlan?moveMin/movePlan:0;
   const ev=eveState(); const dayStart=new Date().setHours(0,0,0,0);
   const eatenSinceWin=(d.food||[]).some(f=>f.t>=dayStart&&(new Date(f.t).getHours()*60+new Date(f.t).getMinutes())>=ev.ws);
   const ctx={k,d,pl,T,ft,hr,ev,missions,medMin:medMin(k),eatenSinceWin,doneN:done.length,total:missions.length};
   const nextCard=d.energy?`<div class="c12">${nextCardHtml(ctx)}</div>`:''; const eveTop=eveningCardHtml(ctx);
   const stale=(Date.now()-(S.meta.lastBackup||S.meta.created))>14*864e5 && Object.keys(S.days).length>=7;
-  const hs=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl">${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
+  const hs=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl"><i class="hsd ${cls||''}"></i>${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
   return `<div class="grid">
     ${stale?`<div class="c12"><div class="banner" style="margin:0">${ico('info').replace('<svg','<svg width="20" height="20"')}<div class="grow">Your data lives only in this browser and has not been backed up in over two weeks.</div><button class="btn sm" data-act="exportjson">Back up now</button></div></div>`:''}
     ${checkin||nextCard}
     ${eveTop}
     <div class="c12"><section class="hero">
-      ${ring(ft.kcal/T.kcal,196,over?'#f3b94f':'#4ea3ff',left,over?'kcal over':'kcal left',9,over?'#f3b94f':'#27d3ee')}
+      ${activityRings([{pct:ft.kcal/T.kcal,c1:over?'#f3b94f':'#4ea3ff',c2:over?'#ffd990':'#27d3ee'},{pct:ft.protein/T.protein,c1:'#9d8cff',c2:'#c9bfff'},{pct:movePct,c1:'#3fdba5',c2:'#9bf2cf'}],216,`<div class="mono ctr-n">${cu(left)}</div><div class="lbl" style="margin-top:4px">${over?'kcal over':'kcal left'}</div>`)}
       <div class="hero-stats">
-        ${hs('Eaten',Math.round(ft.kcal),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}
-        ${hs('Protein',Math.round(ft.protein),'of '+T.protein+' g',ft.protein/T.protein,'v')}
-        ${hs('Water',d.water||0,'of '+pl.water+' glasses',(d.water||0)/pl.water)}
+        ${hs('Eaten',cu(Math.round(ft.kcal)),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}
+        ${hs('Protein',cu(Math.round(ft.protein)),'of '+T.protein+' g',ft.protein/T.protein,'v')}
+        ${hs('Movement',cu(moveMin),'of '+movePlan+' min',movePct,'g')}
       </div></section>
       <div class="row wrap mt16" style="gap:10px"><button class="btn pri" data-act="goto" data-v="fuel">${ico('plus')} Add food</button><button class="btn ghost" data-act="sub" data-k="fuel" data-v="meals" data-go="fuel">Meal ideas</button></div>
       ${ft.n?macroBreak(ft):''}</div>
@@ -2269,10 +2353,10 @@ function vFuel(){
     const k=fuelDay, d=G(k), ft=foodTotals(k), food=d.food||[];
     const groups=['b','l','d','s','e'].map(m=>({m,items:food.filter(f=>(f.meal||'s')===m)})).filter(g=>g.items.length);
     const over=ft.kcal>T.kcal, left=Math.round(Math.abs(T.kcal-ft.kcal));
-    const fh=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl">${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
+    const fh=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl"><i class="hsd ${cls||''}"></i>${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
     body=`<div class="grid"><div class="c12"><div class="row between" style="margin-bottom:22px"><button class="icon-btn" data-act="fday" data-v="-1" aria-label="Previous day">${ico('chevL')}</button><b>${k===TODAY()?'Today':fmtDL(k)}</b><button class="icon-btn" data-act="fday" data-v="1" aria-label="Next day" ${k>=TODAY()?'disabled style="opacity:.3"':''}>${ico('chevR')}</button></div>
-      <section class="hero">${ring(ft.kcal/T.kcal,172,over?'#f3b94f':'#4ea3ff',left,over?'kcal over':'kcal left',9,over?'#f3b94f':'#27d3ee')}
-        <div class="hero-stats">${fh('Eaten',Math.round(ft.kcal),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}${fh('Protein',Math.round(ft.protein),'of '+T.protein+' g',ft.protein/T.protein,'v')}</div></section>
+      <section class="hero">${activityRings([{pct:ft.kcal/T.kcal,c1:over?'#f3b94f':'#4ea3ff',c2:over?'#ffd990':'#27d3ee'},{pct:ft.protein/T.protein,c1:'#9d8cff',c2:'#c9bfff'}],184,`<div class="mono ctr-n" style="font-size:34px">${cu(left)}</div><div class="lbl" style="margin-top:4px">${over?'kcal over':'kcal left'}</div>`)}
+        <div class="hero-stats">${fh('Eaten',cu(Math.round(ft.kcal)),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}${fh('Protein',cu(Math.round(ft.protein)),'of '+T.protein+' g',ft.protein/T.protein,'v')}</div></section>
       ${macroBreak(ft)}<p class="note mt16">Target ${T.kcal} kcal comes from an estimated daily burn of ${T.tdee} minus ${T.deficit}. It recalculates as your trend weight drops.</p></div>
     <div class="c12">${panel('Add food','',`${myMealPills()}${S.favs.length?`<div class="lbl mt16">Favorites</div><div class="pill-row mt8">${S.favs.map((f,i)=>`<span class="pill" style="display:inline-flex;gap:8px;align-items:center"><span data-act="favadd" data-i="${i}" style="cursor:pointer">${esc(f.name)} <span class="mono dim">${f.kcal}</span></span><span data-act="favdel" data-i="${i}" style="cursor:pointer;color:var(--dim)" title="Remove">&times;</span></span>`).join('')}</div>`:''}
       <form data-form="food" class="grid" style="gap:12px;grid-template-columns:repeat(6,minmax(0,1fr));${myMealPills()||S.favs.length?'margin-top:22px':''}">
@@ -2337,7 +2421,7 @@ function vMind(){
   const doc=new DOMParser().parseFromString('<div id="r">'+vMindAll()+'</div>','text/html');
   const secs=[...doc.querySelectorAll('section.panel')].filter(x=>tab[2].includes(x.querySelector('h3').textContent.trim()));
   secs.sort((x,y)=>tab[2].indexOf(x.querySelector('h3').textContent.trim())-tab[2].indexOf(y.querySelector('h3').textContent.trim()));
-  return `<div class="row" style="margin-bottom:16px">${segCtl('mind',MIND_TABS.map(t=>[t[0],t[1]]),tab[0])}</div><div class="grid">${secs.map(x=>`<div class="c12">${x.outerHTML}</div>`).join('')}</div>`;
+  return `<div class="row" style="margin-bottom:16px">${segCtl('mind',MIND_TABS.map(t=>[t[0],t[1]]),tab[0])}</div><div class="grid">${secs.map((x,i)=>`<div class="c12">${x.outerHTML}</div>`+(tab[0]==='urge'&&i===0?`<div class="c12">${panel('When urges hit','',urgeClockHtml())}</div>`:'')).join('')}</div>`;
 }
 
 /* ---------- DAY LOG (view and edit anything) ---------- */
@@ -2494,10 +2578,10 @@ function vProgress(){
   return `<div class="grid">
     <div class="c12"><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:26px 20px">
       ${[['Trend weight',r1(ph.w),'lb',null],['Trend change',(ph.lost>=0?'-':'+')+r1(Math.abs(ph.lost)),'lb',null],['Weekly rate',rate!=null?r1(rate):'--','lb/wk',null],['To phase 1',r1(ph.toP1),'lb',null],['To goal',r1(ph.toGoal),'lb',null]].map(s=>`<div><div class="stat"><div class="lbl">${s[0]}</div><div class="v">${s[1]}<small>${s[2]}</small></div></div></div>`).join('')}</div></div>
+    <div class="c12">${panel('Your journey','',journeyMap()+(ph.phase===3||ph.toGoal<1?`<div class="banner mt16">${ico('info').replace('<svg','<svg width="20" height="20"')}<div>You are at your goal range. ${S.settings.mode==='maintain'?'Maintenance mode is on: calories are set to your burn. If your trend rises more than 3 lb above goal, return to a small deficit for two weeks.':'Switch to maintenance in Settings to raise calories to your burn gradually.'}</div></div>`:''))}</div>
     <div class="c12">${goalPanel()}</div>
     <div class="c12">${panel('Weight trend','scale',`<div class="row between wrap" style="margin-bottom:10px"><div class="seg">${[[30,'30d'],[90,'90d'],[180,'6m'],[0,'All']].map(o=>`<button class="${progRange===o[0]?'on':''}" data-act="range" data-v="${o[0]}">${o[1]}</button>`).join('')}</div><button class="btn sm pri" data-act="log" data-kind="weight">${ico('plus')} Weigh-in</button></div>${wchart}<p class="note mt8">The blue line smooths daily water swings. Judge progress by the trend, not by single scale readings.</p>`)}</div>
-    <div class="c12">${panel('Roadmap','flag',`<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${road.map(r=>`<div><div class="row between"><b>${r[0]}</b><span class="mono mut">${r[1]}</span></div><div class="bar" style="height:8px"><i style="width:${Math.round(r[3]*100)}%"></i></div><div class="note mt8">${r[2]}${r[4]&&r[3]<1?' &middot; ETA '+fmtD(r[4]):r[3]>=1?' &middot; done':''}</div></div>`).join('')}</div>
-      ${ph.phase===3||ph.toGoal<1?`<div class="banner mt16">${ico('info').replace('<svg','<svg width="20" height="20"')}<div>You are at your goal range. ${S.settings.mode==='maintain'?'Maintenance mode is on: calories are set to your burn. If your trend rises more than 3 lb above goal, return to a small deficit for two weeks.':'Switch to maintenance in Settings to raise calories to your burn gradually.'}</div></div>`:''}`)}</div>
+    <div class="c12">${panel('Consistency','',consistencyHtml(),'','12 weeks')}</div>
     <div class="c6 t6">${panel('Waist','ruler',ser('waist','#22d3ee')+`<div class="row between mt8"><span class="note">${(()=>{const w=Object.keys(S.days).filter(k=>S.days[k].waist>0).sort();return w.length?S.days[w[w.length-1]].waist+' in latest':'Not logged';})()}</span><button class="btn sm" data-act="log" data-kind="waist">${ico('plus')} Log</button></div>`)}</div>
     <div class="c6 t6">${panel('Sleep','moon',ser('sleepH','#9381ff')+`<div class="row between mt8"><span class="note">Hours per night</span><button class="btn sm" data-act="log" data-kind="sleep">${ico('plus')} Log</button></div>`)}</div>
     <div class="c6 t6">${panel('Blood pressure and pulse','pulse',(bpPts.length>1? chartBox('bpc',{series:[{color:'#ff6d7e',pts:bpPts.map(b=>({x:b.x,y:b.y,d:b.d})),main:true,dots:true,dotOp:.9,last:true}],refs:[{y:130,label:'130',color:'#f6b94c'}],tipfn:b=>`<span class="k">${fmtD(fromNum(b.x))}</span> <b>${b.y}/${b.d}</b>`},150):`<div class="empty" style="padding:14px"><div>Needs 2 or more readings</div></div>`)+`<div class="row between mt8"><span class="note">${bpNote||'Systolic shown'}</span><button class="btn sm" data-act="log" data-kind="bp">${ico('plus')} Log</button></div>`)}</div>
@@ -2567,7 +2651,7 @@ function walkMinDay(k){ return walkMin(k); }
 
 function nextCardHtml(c){
   const list=nextCandidates(c); const key=c.k+':'+c.hr; if(NX.key!==key){ NX.key=key; NX.n=0; }
-  if(!list.length) return `<section class="next"><div class="lbl">All set</div><h2 class="next-t">Today is covered</h2><p class="mut">Everything on the plan is done. Anything more is a bonus, and rest counts too.</p></section>`;
+  if(!list.length) return `<section class="next"><div class="donecheck"><svg viewBox="0 0 52 52" width="54" height="54"><circle class="dc-c" cx="26" cy="26" r="23" fill="none" stroke="var(--ok)" stroke-width="2.5"/><path class="dc-p" pathLength="1" d="M15 27l8 8 14-16" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="lbl">All set</div><h2 class="next-t">Today is covered</h2><p class="mut">Everything on the plan is done. Anything more is a bonus, and rest counts too.</p></section>`;
   const i=NX.n%list.length, x=list[i];
   return `<section class="next"><div class="row between"><div class="lbl">Next${c.ev.s==='active'?' &middot; evening window':''}</div><span class="tag mono dim" style="font-size:12px">${c.doneN} of ${c.total} done</span></div>
     <h2 class="next-t">${esc(x.title)}</h2><p class="mut">${esc(x.why)}</p>
@@ -2611,6 +2695,99 @@ function insightHtml(){
   return panel('Insight','',`<div class="t" style="font-size:17px;font-weight:600">${esc(x[0])}</div><p class="mut mt8" style="font-size:15px">${esc(x[1])}</p>`,'','From your data');
 }
 
+/* ===== HealthForge graphics: animation layer and infographics ===== */
+const ANIM={pending:true};                       // set when the user navigates; render() animates once, then clears it
+const reducedMotion=()=>!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+const cu=(n,dec)=>{ dec=dec||0; return `<span data-count="${n}" data-dec="${dec}">${Number(n).toFixed(dec)}</span>`; };
+
+/* count numbers up from zero; a timeout guarantees the final value even if animation frames are paused */
+function animateNumbers(root){
+  if(reducedMotion()) return;
+  (root||document).querySelectorAll('[data-count]').forEach(el=>{
+    const to=parseFloat(el.dataset.count), dec=+el.dataset.dec||0; if(!isFinite(to)) return;
+    const t0=performance.now(), dur=1100;
+    const step=now=>{ const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3); el.textContent=(to*e).toFixed(dec); if(p<1&&el.isConnected) requestAnimationFrame(step); };
+    requestAnimationFrame(step); setTimeout(()=>{ if(el.isConnected) el.textContent=to.toFixed(dec); },dur+250);
+  });
+}
+
+/* ---------- concentric activity rings ---------- */
+function activityRings(rings,size,center){
+  const thick=Math.round(size*.072), gap=Math.round(size*.03), id=uid(); let defs='', svg='';
+  rings.forEach((r,i)=>{
+    const rad=size/2-thick/2-2-i*(thick+gap), c=2*Math.PI*rad, p=clamp(r.pct,0,1), gid='ar'+id+i;
+    defs+=`<linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${r.c1}"/><stop offset="1" stop-color="${r.c2||r.c1}"/></linearGradient>`;
+    svg+=`<circle cx="${size/2}" cy="${size/2}" r="${rad}" fill="none" stroke="${r.c1}" stroke-opacity=".13" stroke-width="${thick}"/>`;
+    svg+=`<circle class="rarc" style="--c:${c.toFixed(1)};--d:${(i*.14).toFixed(2)}s" cx="${size/2}" cy="${size/2}" r="${rad}" fill="none" stroke="url(#${gid})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/>`;
+  });
+  return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs>${defs}</defs>${svg}</svg><div class="ctr">${center}</div></div>`;
+}
+
+/* ---------- journey map: start, first 20 lb, goal ---------- */
+function journeyMap(){
+  const p=S.profile, ph=phaseInfo(), tot=Math.max(1,p.startWeight-p.goalWeight), pos=clamp(ph.lost/tot,0,1), n1=clamp(20/tot,0,1);
+  const gd=p.goalDate||addDays(p.startDate,240);
+  const nodes=[{at:0,t:'Start',v:r1(p.startWeight)+' lb',d:fmtD(p.startDate)},
+    {at:n1,t:'First 20 lb',v:r1(ph.p1)+' lb',d:ph.lost>=20?'Reached':'ETA '+fmtD(ph.p1Date)},
+    {at:1,t:'Goal',v:r1(p.goalWeight)+' lb',d:ph.toGoal<=0.5?'Reached':'Target '+fmtD(gd)}];
+  const side=pos<.1?' l':pos>.9?' r':'';
+  return `<div class="jm"><div class="jm-track"><i class="jm-fill" style="width:${(pos*100).toFixed(1)}%"></i>
+    ${nodes.map(n=>`<b class="jm-node${pos>=n.at-.001?' on':''}" style="left:${(n.at*100).toFixed(1)}%"></b>`).join('')}
+    <b class="jm-you${side}" style="left:${(pos*100).toFixed(1)}%"><em>${r1(ph.w)} lb</em></b></div>
+    <div class="jm-labs">${nodes.map((n,i)=>`<div class="jm-lab${i===0?' first':i===nodes.length-1?' last':''}" style="left:${(n.at*100).toFixed(1)}%"><b>${n.t}</b><span class="mono">${n.v}</span><span class="dim">${n.d}</span></div>`).join('')}</div>
+    <div class="row between wrap" style="gap:10px;margin-top:6px"><span class="note">${ph.lost>=0?'Down':'Up'} ${r1(Math.abs(ph.lost))} lb on trend, ${r1(ph.toGoal)} to go</span><span class="note mono">${Math.round(pos*100)}% of the way</span></div></div>`;
+}
+
+/* ---------- consistency heatmap: last 12 weeks ---------- */
+function consistencyHtml(){
+  const T0=TODAY(), weeks=12, dow=pd(T0).getDay(), startK=addDays(T0,-(dow+7*(weeks-1)));
+  let cells='', months='', lastM=-1, active=0, strong=0;
+  for(let w=0;w<weeks;w++){
+    for(let d=0;d<7;d++){
+      const k=addDays(startK,w*7+d); if(k>T0) continue; const pr=dayProgress(k), act=isActive(k);
+      const lvl=!act?0:pr.pct>=1?4:pr.pct>=.67?3:pr.pct>=.34?2:1; if(act) active++; if(pr.pct>=.6) strong++;
+      cells+=`<rect class="cell l${lvl}${k===T0?' today':''}" style="--i:${w*7+d}" x="${28+w*20}" y="${20+d*20}" width="16" height="16" rx="4" data-t="${fmtD(k)}: ${act?pr.done+' of '+pr.total+' done':'nothing logged'}"/>`;
+    }
+    const m=pd(addDays(startK,w*7)).getMonth(); if(m!==lastM){ months+=`<text x="${28+w*20}" y="11">${pd(addDays(startK,w*7)).toLocaleDateString(undefined,{month:'short'})}</text>`; lastM=m; }
+  }
+  const dl=[[1,'M'],[3,'W'],[5,'F']].map(([r,t])=>`<text x="8" y="${20+r*20+12}">${t}</text>`).join('');
+  return `<div class="hm"><svg viewBox="0 0 ${28+weeks*20} ${20+7*20}" role="img" aria-label="Activity over the last 12 weeks">${months}${dl}${cells}</svg>
+    <div class="hm-leg"><span>Less</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span></div></div>
+    <p class="note mt8">${active} active days in the last ${weeks} weeks, ${strong} with most of the plan done.</p>`;
+}
+
+/* ---------- urge clock: 24 hours, evening window shaded ---------- */
+function urgeClockHtml(){
+  const urges=[]; Object.keys(S.days).forEach(k=>(S.days[k].urges||[]).forEach(u=>{ if(u.t) urges.push(u); }));
+  if(urges.length<3) return `<div class="empty">${emptyArt('chart')}<div>Log three or more urges with the interrupter to see when they tend to hit.</div></div>`;
+  const hrs=new Array(24).fill(0); urges.forEach(u=>hrs[new Date(u.t).getHours()]++);
+  const mx=Math.max(...hrs,1), ws=winStartMin()/60, we=WIN_END/60, cx=150, cy=150, r0=46, rm=122;
+  const pol=(r,a)=>[cx+r*Math.sin(a),cy-r*Math.cos(a)];
+  const sector=(i,r1_)=>{ const a0=(i*15+1.2)*Math.PI/180, a1=((i+1)*15-1.2)*Math.PI/180; const A=pol(r0,a0),B=pol(r0,a1),C=pol(r1_,a1),D=pol(r1_,a0);
+    return `M${A[0].toFixed(1)} ${A[1].toFixed(1)}A${r0} ${r0} 0 0 1 ${B[0].toFixed(1)} ${B[1].toFixed(1)}L${C[0].toFixed(1)} ${C[1].toFixed(1)}A${r1_} ${r1_} 0 0 0 ${D[0].toFixed(1)} ${D[1].toFixed(1)}Z`; };
+  const hrName=h=>((h%12)||12)+(h<12?' am':' pm');
+  let wedges='', inWin=0;
+  hrs.forEach((n,i)=>{ const evening=i+1>ws&&i<we; if(evening) inWin+=n; const rad=n?r0+10+Math.sqrt(n/mx)*(rm-r0-10):r0+3;
+    wedges+=`<path class="wedge hv${evening?' ev':''}${n?'':' zero'}" style="--i:${i}" d="${sector(i,rad)}" data-t="${hrName(i)}: ${n} urge${n===1?'':'s'}"/>`; });
+  const peak=hrs.indexOf(mx);
+  const guides=[r0,(r0+rm)/2,rm].map(r=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(160,185,230,.1)"/>`).join('');
+  const labels=[[0,'12a'],[6,'6a'],[12,'12p'],[18,'6p']].map(([h,t])=>{ const q=pol(rm+20,h*15*Math.PI/180); return `<text x="${q[0].toFixed(1)}" y="${(q[1]+4).toFixed(1)}" text-anchor="middle">${t}</text>`; }).join('');
+  const a0=ws*15*Math.PI/180, a1=we*15*Math.PI/180, P0=pol(rm+7,a0), P1=pol(rm+7,a1);
+  const band=`<path class="eveband" d="M${P0[0].toFixed(1)} ${P0[1].toFixed(1)}A${rm+7} ${rm+7} 0 0 1 ${P1[0].toFixed(1)} ${P1[1].toFixed(1)}" fill="none" stroke-width="4" stroke-linecap="round"/>`;
+  return `<div class="uc"><svg viewBox="-12 -12 324 324" role="img" aria-label="When urges hit, by hour">${guides}${band}${wedges}${labels}
+    <text x="150" y="146" text-anchor="middle" class="uc-n">${urges.length}</text><text x="150" y="164" text-anchor="middle" class="uc-s">urges</text></svg></div>
+    <p class="note mt8">Peak hour: <b>${hrName(peak)}</b>. ${Math.round(inWin/urges.length*100)}% of urges landed in your evening window (the violet arc and wedges).</p>`;
+}
+
+/* ---------- floating tooltip for heatmap cells and clock wedges ---------- */
+function mountGraphics(root){
+  const host=root||document; if(host._gtip) return; host._gtip=1;
+  let tip=document.getElementById('gtip'); if(!tip){ tip=document.createElement('div'); tip.id='gtip'; tip.className='gtip'; document.body.appendChild(tip); }
+  const show=e=>{ const t=e.target.closest&&e.target.closest('[data-t]'); if(!t||!host.contains(t)||!(t.closest('.hm')||t.closest('.uc'))){ tip.style.opacity=0; return; }
+    tip.textContent=t.dataset.t; tip.style.opacity=1; const w=tip.offsetWidth; tip.style.left=Math.max(8,Math.min(innerWidth-w-8,e.clientX-w/2))+'px'; tip.style.top=(e.clientY-42)+'px'; };
+  host.addEventListener('pointermove',show); host.addEventListener('pointerdown',show); host.addEventListener('pointerleave',()=>{ tip.style.opacity=0; });
+}
+
 /* ===== HealthForge: settings, forms, events, boot ===== */
 const NAV=[['today','Today','today'],['fuel','Fuel','fuel'],['move','Move','move'],['mind','Mind','mind'],['progress','Progress','progress']];
 const VIEWS={log:vLog,today:vToday,fuel:vFuel,move:vMove,mind:vMind,progress:vProgress,settings:vSettings};
@@ -2623,13 +2800,13 @@ function render(){
   if(!S.profile) return; renderedDay=TODAY();
   const y=window.scrollY; const t=titleOf();
   $('#ttl').textContent=t[0]; $('#sub').textContent=t[1];
-  $('#view').innerHTML=VIEWS[view]();
+  const vw=$('#view'); vw.innerHTML=VIEWS[view](); const anim=ANIM.pending; ANIM.pending=false; vw.classList.toggle('anim',anim);
   $$('[data-nav]').forEach(b=>b.classList.toggle('on',b.dataset.nav===view));
-  mountCharts($('#view'));
+  mountCharts(vw); mountGraphics(vw); if(anim) animateNumbers(vw);
   const lv=levelInfo(); $('#rankmini').innerHTML=`<div class="row" style="gap:10px">${emblem(lv.lv,38)}<div class="grow"><div class="row"><b>${lv.name}</b></div><div class="note">Lv ${lv.lv} &middot; ${lv.xp} XP</div></div></div><div class="bar"><i style="width:${Math.round(lv.pct*100)}%"></i></div>`;
   window.scrollTo(0,y);
 }
-function go(v){ if(DR&&DR.preview) stopDrone(1); if(v==='log') logDay=TODAY(); view=v; history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
+function go(v){ ANIM.pending=true; if(DR&&DR.preview) stopDrone(1); if(v==='log') logDay=TODAY(); view=v; history.replaceState(null,'','#'+v); render(); window.scrollTo(0,0); }
 
 /* ---------- settings view ---------- */
 function vSettings(){
@@ -2753,7 +2930,7 @@ const ACT={
   closeSheet(){closeSheet();},
   async stageClose(){ if(await uiConfirm('Progress in this session will not be saved.',{title:'End this session?',yes:'End session',no:'Keep going'})) closeStage(); },
   goto(t){ go(t.dataset.v); },
-  sub(t){ if(t.dataset.k==='fuel'||t.dataset.k==='move'||t.dataset.k==='mind') sub[t.dataset.k]=t.dataset.v; if(t.dataset.go) view=t.dataset.go; render(); },
+  sub(t){ ANIM.pending=true; if(t.dataset.k==='fuel'||t.dataset.k==='move'||t.dataset.k==='mind') sub[t.dataset.k]=t.dataset.v; if(t.dataset.go) view=t.dataset.go; render(); },
   energy(t){ const v=+t.dataset.v; const d=D(TODAY()); if(v===0) delete d.energy; else d.energy=v; touch(v?'Check-in saved':''); },
   walk(t){ walkStage(+t.dataset.m); },
   stretch(t){ stretchStage(t.dataset.id); },
@@ -2887,7 +3064,7 @@ function boot(){
 function rollover(){ if(S&&S.profile&&dk()!==renderedDay&&!$('#stage.open')){ fuelDay=TODAY(); render(); } }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) rollover(); }); window.addEventListener('focus',rollover); setInterval(rollover,60000);
 window.addEventListener('DOMContentLoaded',boot);
-window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(VIEWS[h]&&h!==view&&S&&S.profile){ view=h; render(); window.scrollTo(0,0); } });
+window.addEventListener('hashchange',()=>{ const h=location.hash.slice(1); if(VIEWS[h]&&h!==view&&S&&S.profile){ ANIM.pending=true; view=h; render(); window.scrollTo(0,0); } });
 
 /* ===== HealthForge: custom meal builder (line-item ingredients) ===== */
 let B=null, BR=[];
@@ -2931,10 +3108,10 @@ const ICOL=['#22d3ee','#3b9cff','#9381ff','#f6b94c','#38d9a0','#ff8fb1'];
 function macroSplit(t){ const pk=t.p*4, ck=t.c*4, fk=t.f*9, tot=pk+ck+fk; return {pk,ck,fk,tot,pp:tot?pk/tot:0,cp:tot?ck/tot:0,fp:tot?fk/tot:0}; }
 function donut(m,size,center,sub){
   const r=(size-16)/2, c=2*Math.PI*r; let off=0; const seg=[[m.pp,MCOL.p],[m.cp,MCOL.c],[m.fp,MCOL.f]];
-  let arcs=''; seg.forEach(([v,col])=>{ if(v>0.001){ const len=Math.max(0,v*c-2); arcs+=`<circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="14" stroke-dasharray="${len.toFixed(2)} ${(c-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${size/2} ${size/2})"/>`; } off+=v*c; });
+  let arcs=''; seg.forEach(([v,col])=>{ if(v>0.001){ const len=Math.max(0,v*c-2); arcs+=`<circle class="arc" style="--c:${c.toFixed(2)}" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="14" stroke-dasharray="${len.toFixed(2)} ${(c-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 ${size/2} ${size/2})"/>`; } off+=v*c; });
   return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(125,160,215,.14)" stroke-width="14"/>${arcs}</svg><div class="ctr"><div class="mono" style="font-size:20px;font-weight:600">${center}</div><div class="lbl" style="margin-top:1px">${sub}</div></div></div>`;
 }
-function macroBar(m,h=8){ return `<div style="display:flex;gap:2px;height:${h}px;border-radius:${h}px;overflow:hidden;background:rgba(125,160,215,.14)">${[[m.pp,MCOL.p],[m.cp,MCOL.c],[m.fp,MCOL.f]].map(([v,c])=>v>0?`<i style="width:${(v*100).toFixed(1)}%;background:${c}"></i>`:'').join('')}</div>`; }
+function macroBar(m,h=8){ return `<div class="mbr" style="display:flex;gap:2px;height:${h}px;border-radius:${h}px;overflow:hidden;background:rgba(125,160,215,.14)">${[[m.pp,MCOL.p],[m.cp,MCOL.c],[m.fp,MCOL.f]].map(([v,c])=>v>0?`<i style="width:${(v*100).toFixed(1)}%;background:${c}"></i>`:'').join('')}</div>`; }
 // Macro breakdown for a day's totals (used under the fuel gauges)
 function macroBreak(ft){
   const t={p:ft.protein,c:ft.carbs,f:ft.fat}, m=macroSplit(t), none=ft.nomac===ft.n;

@@ -58,7 +58,7 @@ function walkMinDay(k){ return walkMin(k); }
 
 function nextCardHtml(c){
   const list=nextCandidates(c); const key=c.k+':'+c.hr; if(NX.key!==key){ NX.key=key; NX.n=0; }
-  if(!list.length) return `<section class="next"><div class="lbl">All set</div><h2 class="next-t">Today is covered</h2><p class="mut">Everything on the plan is done. Anything more is a bonus, and rest counts too.</p></section>`;
+  if(!list.length) return `<section class="next"><div class="donecheck"><svg viewBox="0 0 52 52" width="54" height="54"><circle class="dc-c" cx="26" cy="26" r="23" fill="none" stroke="var(--ok)" stroke-width="2.5"/><path class="dc-p" pathLength="1" d="M15 27l8 8 14-16" fill="none" stroke="var(--ok)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="lbl">All set</div><h2 class="next-t">Today is covered</h2><p class="mut">Everything on the plan is done. Anything more is a bonus, and rest counts too.</p></section>`;
   const i=NX.n%list.length, x=list[i];
   return `<section class="next"><div class="row between"><div class="lbl">Next${c.ev.s==='active'?' &middot; evening window':''}</div><span class="tag mono dim" style="font-size:12px">${c.doneN} of ${c.total} done</span></div>
     <h2 class="next-t">${esc(x.title)}</h2><p class="mut">${esc(x.why)}</p>

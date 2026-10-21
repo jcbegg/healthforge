@@ -144,15 +144,15 @@ function sparkline(vals,color='#3b9cff',w=120,h=34){
   const v=vals.filter(x=>x!=null); if(v.length<2) return `<svg width="${w}" height="${h}"></svg>`;
   const mn=Math.min(...v), mx=Math.max(...v), rg=(mx-mn)||1;
   const pts=v.map((y,i)=>`${(i/(v.length-1)*(w-4)+2).toFixed(1)},${(h-4-(y-mn)/rg*(h-8)).toFixed(1)}`);
-  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3" fill="${color}"/></svg>`;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline class="draw" pathLength="1" points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${pts[pts.length-1].split(',')[0]}" cy="${pts[pts.length-1].split(',')[1]}" r="3" fill="${color}"/></svg>`;
 }
 function ring(pct,size,color,main,sub,thick=10,color2){
   const r=(size-thick)/2, c=2*Math.PI*r, p=clamp(pct,0,1);
   const id='rg'+uid();
   return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="${color2||color}"/></linearGradient></defs>
   <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(125,160,215,.14)" stroke-width="${thick}"/>
-  <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})" style="transition:stroke-dashoffset .6s"/></svg>
-  <div class="ctr"><div class="mono" style="font-size:${size>140?30:20}px;font-weight:600">${main}</div><div class="lbl" style="margin-top:2px">${sub}</div></div></div>`;
+  <circle class="ringarc" cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})" style="--c:${c.toFixed(1)};transition:stroke-dashoffset .6s"/></svg>
+  <div class="ctr"><div class="mono" style="font-size:${size>140?30:20}px;font-weight:600">${/^\d+$/.test(String(main))?cu(main):main}</div><div class="lbl" style="margin-top:2px">${sub}</div></div></div>`;
 }
 /* chart mounting: placeholders <div class="chart" data-cid="x"></div>, data in CH[x] */
 function chartBox(id,spec,h=220){ CH[id]=Object.assign({h},spec); return `<div class="chart" data-cid="${id}" style="height:${h}px"></div>`; }
@@ -185,10 +185,10 @@ function lineSvg(sp,w,h){
   (sp.refs||[]).forEach(r=>{ const y=g.Y(r.y); out+=`<line x1="${g.L}" x2="${w-g.R}" y1="${y}" y2="${y}" stroke="${r.color||'#9381ff'}" stroke-dasharray="5 5" stroke-opacity=".8"/><text x="${w-g.R}" y="${y-5}" text-anchor="end" style="fill:${r.color||'#9381ff'}">${esc(r.label)}</text>`; });
   sp.series.forEach((s,si)=>{
     const P=s.pts.map(p=>[g.X(p.x),g.Y(p.y)]); if(!P.length) return;
-    if(s.area){ const id='ar'+si+uid(); out+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".28"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient></defs><path d="M${P[0][0]},${h-g.B} L${P.map(p=>p.join(',')).join(' L')} L${P[P.length-1][0]},${h-g.B}Z" fill="url(#${id})"/>`; }
-    if(s.line!==false) out+=`<polyline points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width||2.2}" stroke-linejoin="round" stroke-linecap="round" ${s.dash?'stroke-dasharray="4 4"':''}/>`;
+    if(s.area){ const id='ar'+si+uid(); out+=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.color}" stop-opacity=".28"/><stop offset="1" stop-color="${s.color}" stop-opacity="0"/></linearGradient></defs><path class="area" d="M${P[0][0]},${h-g.B} L${P.map(p=>p.join(',')).join(' L')} L${P[P.length-1][0]},${h-g.B}Z" fill="url(#${id})"/>`; }
+    if(s.line!==false) out+=`<polyline points="${P.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width||2.2}" stroke-linejoin="round" stroke-linecap="round" ${s.dash?'stroke-dasharray="4 4"':'pathLength="1" class="draw"'}/>`;
     if(s.dots) P.forEach(p=>{out+=`<circle cx="${p[0]}" cy="${p[1]}" r="${s.dotR||2.6}" fill="${s.color}" fill-opacity="${s.dotOp||.5}"/>`;});
-    if(s.last){ const q=P[P.length-1]; out+=`<circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${s.color}" stroke="#0b1018" stroke-width="2"/>`; }
+    if(s.last){ const q=P[P.length-1]; out+=`<circle class="ping" cx="${q[0]}" cy="${q[1]}" r="5" fill="${s.color}"/><circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${s.color}" stroke="#0b1018" stroke-width="2"/>`; }
   });
   out+=`<line class="xh" x1="0" x2="0" y1="${g.T}" y2="${h-g.B}" stroke="rgba(233,239,249,.45)" stroke-dasharray="3 3" style="display:none"/><circle class="xd" r="5" fill="#0b1018" stroke="#22d3ee" stroke-width="2" style="display:none"/>`;
   return out+'</svg>';
@@ -199,7 +199,7 @@ function barSvg(sp,w,h){
   let o=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
   ticks.forEach(t=>{o+=`<line x1="${L}" x2="${w-R}" y1="${Y(t)}" y2="${Y(t)}" stroke="rgba(125,160,215,.12)"/><text x="${L-6}" y="${Y(t)+3.5}" text-anchor="end">${Math.round(t)}</text>`;});
   sp.bars.forEach((b,i)=>{ const x=L+i*bw+bw*.18, ww=bw*.64, y=Y(b.v), hh=Math.max(0,h-B-y); const col=b.color||sp.color||'#3b9cff';
-    o+=`<rect class="bh" data-i="${i}" x="${x}" y="${y}" width="${ww}" height="${hh}" rx="4" fill="${col}" fill-opacity="${b.v?0.9:0}"/>`;
+    o+=`<rect class="bh grow" style="--i:${i}" data-i="${i}" x="${x}" y="${y}" width="${ww}" height="${hh}" rx="4" fill="${col}" fill-opacity="${b.v?0.9:0}"/>`;
     o+=`<rect x="${L+i*bw}" y="${T}" width="${bw}" height="${h-T-B}" fill="transparent" class="bz" data-i="${i}"/>`;
     if(sp.bars.length<=16 || i%Math.ceil(sp.bars.length/10)===0) o+=`<text x="${x+ww/2}" y="${h-8}" text-anchor="middle">${esc(b.label)}</text>`; });
   if(sp.target){ const y=Y(sp.target); o+=`<line x1="${L}" x2="${w-R}" y1="${y}" y2="${y}" stroke="#9381ff" stroke-dasharray="5 5"/><text x="${w-R}" y="${y-5}" text-anchor="end" style="fill:#9381ff">${esc(sp.targetLabel||'target')}</text>`; }
