@@ -108,6 +108,9 @@ function counts(){
   if(S.profile){ c.lost=Math.max(0,S.profile.startWeight-curWeight()); const wv=keys.filter(k=>S.days[k].waist>0).sort(); if(wv.length) c.waistLost=Math.max(0,S.days[wv[0]].waist-S.days[wv[wv.length-1]].waist); }
   return c;
 }
+const walkMiles=w=>Math.round((w.speed||0)*(w.min||0)/60*100)/100;
+const walkMilesDay=k=>(G(k).walk||[]).reduce((a,w)=>a+walkMiles(w),0);
+const r2=v=>Math.round(v*100)/100;
 function walkKcal(min,mph){ const met = mph<=2?2.5: mph<=2.5?2.9: mph<=3?3.3: mph<=3.5?3.8: 4.8; return Math.round(met*curWeight()*LB*min/60); }
 
 /* ---------- phases / projection ---------- */

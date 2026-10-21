@@ -71,7 +71,7 @@ function logSheet(kind,k=TODAY()){
 /* ---------- generic item editor ---------- */
 const EDEF={
   food:[['name','Name','text'],['kcal','Calories','number'],['protein','Protein (g)','number'],['meal','Meal','sel',()=>Object.entries(MEAL_LABELS)]],
-  walk:[['min','Minutes','number'],['speed','Speed (mph)','number','0.1']],
+  walk:[['min','Minutes','number','1'],['speed','Speed (mph)','number','any'],['dist','Distance (mi)','number','any']],
   strength:[['r','Routine','sel',()=>[...ROUTINE_ORDER.map(r=>[r,ROUTINES[r].name]),['custom','My workout'],...S.routines.filter(r=>r.kind==='s').map(r=>['my:'+r.id,r.name])]],['min','Minutes','number'],['rpe','Effort (1-5)','number'],['mini','Mini version','bool']],
   stretch:[['id','Routine','sel',()=>[...STRETCH_ROUTINES.map(r=>[r.id,r.name]),['custom','My stretch flow'],...S.routines.filter(r=>r.kind==='t').map(r=>['my:'+r.id,r.name]),['one','Single stretch']]],['min','Minutes','number']],
   meditate:[['id','Meditation','sel',()=>MEDITATIONS.map(m=>[m.id,m.title])],['min','Minutes','number']],
@@ -81,7 +81,7 @@ const EDEF={
 };
 const EDEFAULT={food:()=>({name:'',kcal:0,protein:0,meal:mealOfNow()}),walk:()=>({min:15,speed:S.settings.lastSpeed||2.5}),strength:()=>({r:'A',min:18,rpe:3,mini:false}),stretch:()=>({id:'desk',min:5}),meditate:()=>({id:'settle',min:3}),urges:()=>({src:'stress',trigger:'',outcome:'handled',note:''}),recovery:()=>({what:DRAINERS[0],lvl:3,rc:RECHARGE[0],note:''}),notes:()=>({text:''})};
 function editItem(type,k,i){
-  const old=i>=0?(G(k)[type]||[])[i]:null; if(i>=0&&!old) return; const x=old||EDEFAULT[type]();
+  const old=i>=0?(G(k)[type]||[])[i]:null; if(i>=0&&!old) return; const x=Object.assign({},old||EDEFAULT[type]()); if(type==='walk') x.dist=walkMiles(x);
   const fields=EDEF[type].map(([key,label,kind,opt])=>{
     const val=x[key]==null?'':x[key];
     if(kind==='sel') return `<div class="field"><label>${label}</label><select class="inp" name="${key}">${opt().map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(val)?'selected':''}>${esc(o[1])}</option>`).join('')}</select></div>`;
@@ -97,7 +97,9 @@ function editItem(type,k,i){
 const FORMS={
   food(f){ const v=Object.fromEntries(new FormData(f)); const item={id:uid(),name:v.name.trim(),kcal:num(v.kcal)||0,protein:num(v.protein)||0,meal:v.meal,t:Date.now()};
     arr(fuelDay,'food').push(item); if(v.fav) S.favs.push({name:item.name,kcal:item.kcal,protein:item.protein}); touch('Added '+item.name); },
-  walk(f){ const v=Object.fromEntries(new FormData(f)); arr(TODAY(),'walk').push({min:num(v.min)||0,speed:num(v.speed)||2.5,t:Date.now()}); touch('Walk logged'); },
+  walk(f){ const v=Object.fromEntries(new FormData(f)); const min=num(v.min)||0, di=num(v.dist)||0; let sp=di>0&&min>0?di*60/min:(num(v.speed)||2.5);
+    if(!(min>0)){ toast('Enter the minutes'); return; } if(sp<0.3||sp>9){ toast('That distance does not fit that time. Check the numbers.'); return; }
+    sp=Math.round(sp*1000)/1000; arr(TODAY(),'walk').push({min,speed:sp,t:Date.now()}); touch('Walk logged: '+walkMiles({min,speed:sp})+' mi'); },
   recovery(f){ const v=Object.fromEntries(new FormData(f)); arr(TODAY(),'recovery').push({what:v.what,lvl:+v.lvl,rc:v.rc,note:v.note,t:Date.now()}); touch('Entry added'); },
   note(f){ const v=Object.fromEntries(new FormData(f)); if(v.t.trim()) arr(TODAY(),'notes').push({text:v.t.trim(),t:Date.now()}); closeSheet(); touch('Note saved'); },
   log(f){ const v=Object.fromEntries(new FormData(f)); const k=v.date||TODAY(); const d=D(k); const kind=f.dataset.kind;
@@ -108,6 +110,7 @@ const FORMS={
     closeSheet(); touch('Saved'); },
   edit(f){ const fd=new FormData(f); const type=f.dataset.t, k0=f.dataset.k, i=+f.dataset.i, nk=fd.get('__date')||k0; const obj={};
     EDEF[type].forEach(([key,label,kind])=>{ if(kind==='bool') obj[key]=fd.get(key)!==null; else if(kind==='number') obj[key]=num(fd.get(key))||0; else obj[key]=(fd.get(key)||'').toString().trim(); });
+    if(type==='walk'){ if(obj.min>0&&obj.dist>0) obj.speed=Math.round(obj.dist*60/obj.min*1000)/1000; delete obj.dist; if(!(obj.min>0)||obj.speed<0.3||obj.speed>9){ toast('Check the minutes and speed or distance'); return; } }
     if(type==='notes'&&!obj.text){ toast('Write something first'); return; } if(type==='food'&&!obj.name){ toast('Add a name'); return; }
     if(i>=0){ const list=D(k0)[type]; const old=list[i]; const item=Object.assign({},old,obj); if(nk===k0) list[i]=item; else { list.splice(i,1); arr(nk,type).push(item); } }
     else arr(nk,type).push(Object.assign({id:uid(),t:Date.now()},obj));
