@@ -12,67 +12,6 @@ function missionRow(m){
   const pct=clamp(m.cur/m.goal,0,1);
   return `<div class="mission ${m.done?'done':''}"><div class="ck">${ico('check')}</div><div class="grow"><div class="t">${m.title}</div><div class="s">${m.sub}</div><div class="mbar"><i style="width:${Math.round(pct*100)}%"></i></div></div>${m.btn||''}</div>`;
 }
-function vToday(){
-  const k=TODAY(), d=G(k), pl=dayPlan(k), T=targets(), ft=foodTotals(k), ph=phaseInfo(), lv=levelInfo(), hr=new Date().getHours();
-  const stretchId = pl.energy===1?'mini':hr>=19?'wind':pl.energy===2?'desk':'backhip';
-  const medId = pl.energy===1?'settle':hr>=16?'offload':'bodyscan5';
-  const nr=nextRoutine();
-  let checkin='';
-  if(!d.energy){
-    checkin=`<div class="c12">${panel('How is your energy right now?','',`<p class="mut" style="margin-bottom:16px">Today's plan scales to match. There is no wrong answer.</p>
-      <div class="choice" style="grid-template-columns:repeat(3,1fr)">${ENERGY.map(e=>`<button class="opt" data-act="energy" data-v="${e.id}">${ico(e.icon)}<b>${e.name}</b><small>${e.sub}</small></button>`).join('')}</div>`)}</div>`;
-  }
-  const missions=[
-    {title:'Walk',sub:`${walkMin(k)} of ${pl.walk} min`,cur:walkMin(k),goal:pl.walk,done:walkMin(k)>=pl.walk,btn:`<button class="btn sm" data-act="walk" data-m="${pl.walk}">${ico('play')} Start</button>`},
-    {title:'Mobility',sub:`${stretchMin(k)} of ${pl.stretch} min`,cur:stretchMin(k),goal:pl.stretch,done:stretchMin(k)>=Math.max(2,pl.stretch-2),btn:`<button class="btn sm" data-act="stretch" data-id="${stretchId}">${ico('play')} Start</button>`},
-    pl.strDay||pl.energy===3?{title:'Strength',sub:strengthN(k)?'Session complete':`${nr.name}, about 18 min`,cur:strengthN(k),goal:1,done:strengthN(k)>=1,btn:`<button class="btn sm" data-act="strength" data-r="${nr.id}">${ico('play')} Start</button>`}
-      :{title:'Strength (optional mini)',sub:strengthN(k)?'Session complete':'8-minute minimum version',cur:strengthN(k),goal:1,done:strengthN(k)>=1,btn:`<button class="btn sm" data-act="strength" data-r="${nr.id}" data-mini="1">${ico('play')} Mini</button>`},
-    {title:'Meditate',sub:`${medMin(k)} of ${pl.med} min`,cur:medMin(k),goal:Math.min(pl.med,3),done:medMin(k)>=Math.min(pl.med,3),btn:`<button class="btn sm" data-act="med" data-id="${medId}">${ico('play')} Start</button>`},
-    {title:'Protein target',sub:`${Math.round(ft.protein)} of ${T.protein} g`,cur:ft.protein,goal:T.protein*.9,done:ft.protein>=T.protein*.9,btn:`<button class="btn sm" data-act="goto" data-v="fuel">${ico('plus')} Log food</button>`},
-    {title:'Water',sub:`${d.water||0} of ${pl.water} glasses`,cur:d.water||0,goal:pl.water,done:(d.water||0)>=pl.water,btn:`<button class="btn sm" data-act="water">${ico('plus')} 1 glass</button>`},
-    {title:'Weigh-in',sub:d.weight?d.weight+' lb logged':'Optional, morning is best',cur:d.weight?1:0,goal:1,done:!!d.weight,btn:`<button class="btn sm" data-act="log" data-kind="weight">${ico('scale')} Log</button>`}
-  ];
-  const todo=missions.filter(m=>!m.done), done=missions.filter(m=>m.done);
-  const row=m=>missionRow(m);
-  const evening=hr>=15, lastW=lastRaw(), g=goalPlan();
-  const left=Math.round(Math.abs(T.kcal-ft.kcal)), over=ft.kcal>T.kcal;
-  const strDone=(G(k).strength||[]).reduce((a,x)=>a+(x.min||0),0), moveMin=walkMin(k)+stretchMin(k)+strDone, movePlan=pl.walk+pl.stretch+((pl.strDay||pl.energy===3)?18:0), movePct=movePlan?moveMin/movePlan:0;
-  const ev=eveState(); const dayStart=new Date().setHours(0,0,0,0);
-  const eatenSinceWin=(d.food||[]).some(f=>f.t>=dayStart&&(new Date(f.t).getHours()*60+new Date(f.t).getMinutes())>=ev.ws);
-  const ctx={k,d,pl,T,ft,hr,ev,missions,medMin:medMin(k),eatenSinceWin,doneN:done.length,total:missions.length};
-  const nextCard=d.energy?`<div class="c12">${nextCardHtml(ctx)}</div>`:''; const eveTop=eveningCardHtml(ctx);
-  const stale=(Date.now()-(S.meta.lastBackup||S.meta.created))>14*864e5 && Object.keys(S.days).length>=7;
-  const hs=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl"><i class="hsd ${cls||''}"></i>${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
-  return `<div class="grid">
-    ${stale?`<div class="c12"><div class="banner" style="margin:0">${ico('info').replace('<svg','<svg width="20" height="20"')}<div class="grow">Your data lives only in this browser and has not been backed up in over two weeks.</div><button class="btn sm" data-act="exportjson">Back up now</button></div></div>`:''}
-    ${checkin||nextCard}
-    ${eveTop}
-    <div class="c12"><section class="hero">
-      ${activityRings([{pct:ft.kcal/T.kcal,c1:over?'#f3b94f':'#4ea3ff',c2:over?'#ffd990':'#27d3ee'},{pct:ft.protein/T.protein,c1:'#9d8cff',c2:'#c9bfff'},{pct:movePct,c1:'#3fdba5',c2:'#9bf2cf'}],216,`<div class="mono ctr-n">${cu(left)}</div><div class="lbl" style="margin-top:4px">${over?'kcal over':'kcal left'}</div>`)}
-      <div class="hero-stats">
-        ${hs('Eaten',cu(Math.round(ft.kcal)),'of '+T.kcal+' kcal',ft.kcal/T.kcal,'c')}
-        ${hs('Protein',cu(Math.round(ft.protein)),'of '+T.protein+' g',ft.protein/T.protein,'v')}
-        ${hs('Movement',cu(moveMin),'of '+movePlan+' min',movePct,'g')}
-      </div></section>
-      <div class="row wrap mt16" style="gap:10px"><button class="btn pri" data-act="goto" data-v="fuel">${ico('plus')} Add food</button><button class="btn ghost" data-act="sub" data-k="fuel" data-v="meals" data-go="fuel">Meal ideas</button></div>
-      ${ft.n?macroBreak(ft):''}</div>
-    <div class="c12">${panel("Today's plan",'',(todo.length?todo.map((m,i)=>row(m,i===0)).join(''):`<p class="mut">Everything is complete. Anything more is a bonus.</p>`)+
-      (d.energy?`<div class="row between wrap mt12"><span class="note">${ENERGY[d.energy-1].name} energy day. ${d.energy===1?'The minimum counts fully.':'Done is better than perfect.'}</span><button class="lnk" data-act="energy" data-v="0">Change</button></div>`:''),'',`${done.length} of ${missions.length} done`)}
-      ${done.length?`<details class="acc mt12"><summary><span class="note">Completed today (${done.length})</span></summary><div class="in">${done.map(m=>missionRow(m)).join('')}</div></details>`:''}</div>
-    <div class="c12">${weekStripHtml()}</div>
-    <div class="c12">${panel('Trend','',`<div class="row between wrap" style="gap:20px;align-items:flex-end"><div class="stat"><div class="big">${r1(ph.w)}<small class="mut" style="font-size:15px;letter-spacing:0"> lb</small></div><div class="d"><span class="chip ${g.status==='behind'?'w':'ok'}" style="margin:6px 0">${{ahead:'Ahead of plan',on:'On track',behind:'Behind plan',done:'Goal reached'}[g.status]}</span><br><span class="mut">Trend ${ph.lost>=0?'down':'up'} <b>${r1(Math.abs(ph.lost))}</b> lb since start</span>${ph.raw!=null?`<br><span class="mut">Scale ${ph.raw} lb, ${ph.rawLost>=0?'down':'up'} <b>${r1(Math.abs(ph.rawLost))}</b> from your start</span>`:''}</div></div>
-        <div>${sparkline(trendSeries().slice(-30).map(x=>x.t),'#27d3ee',150,56)}</div></div>
-        <div class="bar" style="height:5px;margin-top:20px"><i style="width:${Math.round(ph.pct1*100)}%"></i></div><div class="row between note mt8"><span>First 20 lb: ${r1(Math.min(20,Math.max(0,ph.lost)))} of 20</span><span class="mono">${ph.toP1>0?'ETA '+fmtD(ph.p1Date):'Reached'}</span></div>`)}</div>
-    <div class="c12">${insightHtml()}</div>
-    ${eveTop?'':`<div class="c12">${panel(evening?'Evening window':'Evening plan','',`<p class="mut">${evening?'The after-work hours are your high-risk window. Decompress first, then eat on purpose.':'Evenings are where stress eating tends to hit. A plan helps before it does.'}</p>
-      <div class="list mt8"><div class="li"><div class="grow"><div class="t">Work offload meditation</div><div class="s">5 min &middot; leave the day on the shelf</div></div><button class="btn sm" data-act="med" data-id="offload">Start</button></div>
-      <div class="li"><div class="grow"><div class="t">Post-dinner walk</div><div class="s">10 min &middot; steadies blood sugar, breaks the snack habit</div></div><button class="btn sm" data-act="walk" data-m="10">Start</button></div></div>`)}</div>`}
-    <div class="c12">${panel('Rank','',`<div class="row gap16">${emblem(lv.lv,60)}<div class="grow"><div class="row between"><b style="font-size:17px">${lv.name}</b><span class="mono mut">Lv ${lv.lv}</span></div><div class="bar"><i style="width:${Math.round(lv.pct*100)}%"></i></div><div class="note mt8">${lv.xp} XP &middot; ${lv.next} to next &middot; streak <b class="mono">${streak()}</b> days</div></div></div>`)}</div>
-    <div class="c12"><div class="quick"><span class="lbl">Quick log</span>
-      <button class="lnk" data-act="log" data-kind="sleep">Sleep</button><button class="lnk" data-act="log" data-kind="waist">Waist</button><button class="lnk" data-act="log" data-kind="bp">BP and pulse</button><button class="lnk" data-act="log" data-kind="mood">Mood</button></div></div>
-  </div>`;
-}
-
 /* ---------- FUEL ---------- */
 function mealOfNow(){ const h=new Date().getHours(); return h<10?'b':h<14?'l':h<16?'s':h<20?'d':'e'; }
 function vFuel(){

@@ -51,7 +51,7 @@ function nextCandidates(c){
     if(open('Mobility')) add('Mobility','Shake off the desk before the day ends.',mb('Mobility'));
     if(open('Strength')) add('Strength','Still time for your session.',mb('Strength'));
   }
-  (ev.s==='late'?['Mobility','Meditate']:['Walk','Mobility','Strength','Meditate','Protein target','Water','Weigh-in']).forEach(t=>{ if(open(t)) add(m(t).title.replace(' (optional mini)',''),m(t).sub,mb(t)); });
+  (ev.s==='late'?['Mobility','Meditate']:ev.s==='active'?['Mobility','Meditate','Water','Protein target']:['Walk','Mobility','Strength','Meditate','Protein target','Water','Weigh-in']).forEach(t=>{ if(open(t)) add(m(t).title.replace(' (optional mini)',''),m(t).sub,mb(t)); });
   return out;
 }
 function walkMinDay(k){ return walkMin(k); }

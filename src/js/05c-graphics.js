@@ -14,14 +14,19 @@ function animateNumbers(root){
   });
 }
 
-/* ---------- concentric activity rings ---------- */
+/* ---------- concentric activity rings ----------
+   Each ring fills to 100% of its target. Past 100% a brighter second lap runs on top, with a white tick at the top marking the target. */
 function activityRings(rings,size,center){
-  const thick=Math.round(size*.072), gap=Math.round(size*.03), id=uid(); let defs='', svg='';
+  const mid=size/2, thick=Math.round(size*.062), gap=Math.round(size*.034), id=uid(); let defs='', svg='';
+  const grad=(gid,a,b)=>`<linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`;
   rings.forEach((r,i)=>{
-    const rad=size/2-thick/2-2-i*(thick+gap), c=2*Math.PI*rad, p=clamp(r.pct,0,1), gid='ar'+id+i;
-    defs+=`<linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${r.c1}"/><stop offset="1" stop-color="${r.c2||r.c1}"/></linearGradient>`;
-    svg+=`<circle cx="${size/2}" cy="${size/2}" r="${rad}" fill="none" stroke="${r.c1}" stroke-opacity=".13" stroke-width="${thick}"/>`;
-    svg+=`<circle class="rarc" style="--c:${c.toFixed(1)};--d:${(i*.14).toFixed(2)}s" cx="${size/2}" cy="${size/2}" r="${rad}" fill="none" stroke="url(#${gid})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${size/2} ${size/2})"/>`;
+    const rad=mid-thick/2-3-i*(thick+gap), c=2*Math.PI*rad, raw=Math.max(0,r.pct||0), p=Math.min(1,raw), p2=raw>1?Math.min(1,raw-1):0, g1='ar'+id+i, g2='ao'+id+i;
+    defs+=grad(g1,r.c1,r.c2||r.c1)+(p2?grad(g2,r.o1||r.c2||r.c1,r.o2||'#ffffff'):'');
+    svg+=`<circle cx="${mid}" cy="${mid}" r="${rad}" fill="none" stroke="${r.c1}" stroke-opacity=".14" stroke-width="${thick}"/>`;
+    svg+=`<circle class="rarc" style="--c:${c.toFixed(1)};--d:${(i*.14).toFixed(2)}s" cx="${mid}" cy="${mid}" r="${rad}" fill="none" stroke="url(#${g1})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p)).toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>`;
+    if(p2) svg+=`<circle class="rarc rover" style="--c:${c.toFixed(1)};--d:${(i*.14+.9).toFixed(2)}s" cx="${mid}" cy="${mid}" r="${rad}" fill="none" stroke="url(#${g2})" stroke-width="${thick}" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-p2)).toFixed(1)}" transform="rotate(-90 ${mid} ${mid})"/>`;
+    if(raw>1) svg+=`<line class="rtick" x1="${mid}" x2="${mid}" y1="${(mid-rad-thick/2-1).toFixed(1)}" y2="${(mid-rad+thick/2+1).toFixed(1)}"/>`;
+    if(raw>.02){ const ang=(raw>1?p2:p)*2*Math.PI; svg+=`<circle class="rhead" cx="${(mid+rad*Math.sin(ang)).toFixed(1)}" cy="${(mid-rad*Math.cos(ang)).toFixed(1)}" r="${(thick*.2).toFixed(1)}" fill="#fff"/>`; }
   });
   return `<div class="ring-wrap" style="width:${size}px;height:${size}px"><svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs>${defs}</defs>${svg}</svg><div class="ctr">${center}</div></div>`;
 }
