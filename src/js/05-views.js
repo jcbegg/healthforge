@@ -33,13 +33,19 @@ function vToday(){
     {title:'Weigh-in',sub:d.weight?d.weight+' lb logged':'Optional, morning is best',cur:d.weight?1:0,goal:1,done:!!d.weight,btn:`<button class="btn sm" data-act="log" data-kind="weight">${ico('scale')} Log</button>`}
   ];
   const todo=missions.filter(m=>!m.done), done=missions.filter(m=>m.done);
-  const row=(m,first)=>missionRow({...m,btn:m.btn.replace('btn sm','btn sm'+(first?' pri':''))});
+  const row=m=>missionRow(m);
   const evening=hr>=15, lastW=lastRaw(), g=goalPlan();
   const left=Math.round(Math.abs(T.kcal-ft.kcal)), over=ft.kcal>T.kcal;
+  const ev=eveState(); const dayStart=new Date().setHours(0,0,0,0);
+  const eatenSinceWin=(d.food||[]).some(f=>f.t>=dayStart&&(new Date(f.t).getHours()*60+new Date(f.t).getMinutes())>=ev.ws);
+  const ctx={k,d,pl,T,ft,hr,ev,missions,medMin:medMin(k),eatenSinceWin,doneN:done.length,total:missions.length};
+  const nextCard=d.energy?`<div class="c12">${nextCardHtml(ctx)}</div>`:''; const eveTop=eveningCardHtml(ctx);
   const stale=(Date.now()-(S.meta.lastBackup||S.meta.created))>14*864e5 && Object.keys(S.days).length>=7;
   const hs=(label,val,of,pct,cls)=>`<div class="hs"><div class="lbl">${label}</div><div class="row"><div class="v">${val}<small>${of}</small></div></div><div class="bar"><i class="${cls||''}" style="width:${Math.round(clamp(pct,0,1)*100)}%"></i></div></div>`;
   return `<div class="grid">
     ${stale?`<div class="c12"><div class="banner" style="margin:0">${ico('info').replace('<svg','<svg width="20" height="20"')}<div class="grow">Your data lives only in this browser and has not been backed up in over two weeks.</div><button class="btn sm" data-act="exportjson">Back up now</button></div></div>`:''}
+    ${checkin||nextCard}
+    ${eveTop}
     <div class="c12"><section class="hero">
       ${ring(ft.kcal/T.kcal,196,over?'#f3b94f':'#4ea3ff',left,over?'kcal over':'kcal left',9,over?'#f3b94f':'#27d3ee')}
       <div class="hero-stats">
@@ -49,16 +55,17 @@ function vToday(){
       </div></section>
       <div class="row wrap mt16" style="gap:10px"><button class="btn pri" data-act="goto" data-v="fuel">${ico('plus')} Add food</button><button class="btn ghost" data-act="sub" data-k="fuel" data-v="meals" data-go="fuel">Meal ideas</button></div>
       ${ft.n?macroBreak(ft):''}</div>
-    ${checkin}
-    <div class="c12">${panel(todo.length?'Up next':'All done for today','',(todo.length?todo.map((m,i)=>row(m,i===0)).join(''):`<p class="mut">Everything is complete. Anything more is a bonus.</p>`)+
+    <div class="c12">${panel("Today's plan",'',(todo.length?todo.map((m,i)=>row(m,i===0)).join(''):`<p class="mut">Everything is complete. Anything more is a bonus.</p>`)+
       (d.energy?`<div class="row between wrap mt12"><span class="note">${ENERGY[d.energy-1].name} energy day. ${d.energy===1?'The minimum counts fully.':'Done is better than perfect.'}</span><button class="lnk" data-act="energy" data-v="0">Change</button></div>`:''),'',`${done.length} of ${missions.length} done`)}
       ${done.length?`<details class="acc mt12"><summary><span class="note">Completed today (${done.length})</span></summary><div class="in">${done.map(m=>missionRow(m)).join('')}</div></details>`:''}</div>
+    <div class="c12">${weekStripHtml()}</div>
     <div class="c12">${panel('Trend','',`<div class="row between wrap" style="gap:20px;align-items:flex-end"><div class="stat"><div class="big">${r1(ph.w)}<small class="mut" style="font-size:15px;letter-spacing:0"> lb</small></div><div class="d"><span class="chip ${g.status==='behind'?'w':'ok'}" style="margin:6px 0">${{ahead:'Ahead of plan',on:'On track',behind:'Behind plan',done:'Goal reached'}[g.status]}</span><br><span class="mut">Trend ${ph.lost>=0?'down':'up'} <b>${r1(Math.abs(ph.lost))}</b> lb since start</span>${ph.raw!=null?`<br><span class="mut">Scale ${ph.raw} lb, ${ph.rawLost>=0?'down':'up'} <b>${r1(Math.abs(ph.rawLost))}</b> from your start</span>`:''}</div></div>
         <div>${sparkline(trendSeries().slice(-30).map(x=>x.t),'#27d3ee',150,56)}</div></div>
         <div class="bar" style="height:5px;margin-top:20px"><i style="width:${Math.round(ph.pct1*100)}%"></i></div><div class="row between note mt8"><span>First 20 lb: ${r1(Math.min(20,Math.max(0,ph.lost)))} of 20</span><span class="mono">${ph.toP1>0?'ETA '+fmtD(ph.p1Date):'Reached'}</span></div>`)}</div>
-    <div class="c12">${panel(evening?'Evening window':'Evening plan','',`<p class="mut">${evening?'The after-work hours are your high-risk window. Decompress first, then eat on purpose.':'Evenings are where stress eating tends to hit. A plan helps before it does.'}</p>
+    <div class="c12">${insightHtml()}</div>
+    ${eveTop?'':`<div class="c12">${panel(evening?'Evening window':'Evening plan','',`<p class="mut">${evening?'The after-work hours are your high-risk window. Decompress first, then eat on purpose.':'Evenings are where stress eating tends to hit. A plan helps before it does.'}</p>
       <div class="list mt8"><div class="li"><div class="grow"><div class="t">Work offload meditation</div><div class="s">5 min &middot; leave the day on the shelf</div></div><button class="btn sm" data-act="med" data-id="offload">Start</button></div>
-      <div class="li"><div class="grow"><div class="t">Post-dinner walk</div><div class="s">10 min &middot; steadies blood sugar, breaks the snack habit</div></div><button class="btn sm" data-act="walk" data-m="10">Start</button></div></div>`)}</div>
+      <div class="li"><div class="grow"><div class="t">Post-dinner walk</div><div class="s">10 min &middot; steadies blood sugar, breaks the snack habit</div></div><button class="btn sm" data-act="walk" data-m="10">Start</button></div></div>`)}</div>`}
     <div class="c12">${panel('Rank','',`<div class="row gap16">${emblem(lv.lv,60)}<div class="grow"><div class="row between"><b style="font-size:17px">${lv.name}</b><span class="mono mut">Lv ${lv.lv}</span></div><div class="bar"><i style="width:${Math.round(lv.pct*100)}%"></i></div><div class="note mt8">${lv.xp} XP &middot; ${lv.next} to next &middot; streak <b class="mono">${streak()}</b> days</div></div></div>`)}</div>
     <div class="c12"><div class="quick"><span class="lbl">Quick log</span>
       <button class="lnk" data-act="log" data-kind="sleep">Sleep</button><button class="lnk" data-act="log" data-kind="waist">Waist</button><button class="lnk" data-act="log" data-kind="bp">BP and pulse</button><button class="lnk" data-act="log" data-kind="mood">Mood</button></div></div>
