@@ -96,39 +96,76 @@ function decodeCanvas(canvas){
   const bmp=new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(canvas))); const rd=new Z.MultiFormatReader(); rd.setHints(hints);
   try{ return rd.decode(bmp).getText(); }catch(e){ return null; }
 }
-function stopScan(){ if(!SCAN) return; clearInterval(SCAN.timer); try{ SCAN.stream&&SCAN.stream.getTracks().forEach(t=>t.stop()); }catch(e){} SCAN=null; }
+/* live camera frame: try the whole frame, then the centre band at full sensor resolution (helps small barcodes) */
+function frameDecode(v,cv){
+  const vw=v.videoWidth, vh=v.videoHeight; if(!vw||!vh) return null;
+  const w=Math.min(1280,vw), h=Math.round(w*vh/vw); cv.width=w; cv.height=h; const cx=cv.getContext('2d',{willReadFrequently:true}); cx.drawImage(v,0,0,w,h);
+  const a=decodeCanvas(cv); if(a) return a;
+  const bw=Math.round(vw*.8), bh=Math.round(vh*.45); cv.width=bw; cv.height=bh; cv.getContext('2d',{willReadFrequently:true}).drawImage(v,Math.round((vw-bw)/2),Math.round((vh-bh)/2),bw,bh,0,0,bw,bh);
+  return decodeCanvas(cv);
+}
+/* a photo taken with the phone's own camera app: several sizes and a rotated copy */
+async function decodePhoto(file){
+  const url=URL.createObjectURL(file); const img=new Image();
+  try{ await new Promise((res,rej)=>{ img.onload=res; img.onerror=()=>rej(new Error('image')); img.src=url; }); } finally { setTimeout(()=>URL.revokeObjectURL(url),2000); }
+  const cv=document.createElement('canvas'), nw=img.naturalWidth, nh=img.naturalHeight; let code=null;
+  for(const rot of [0,90]){ for(const maxSide of [1800,1100,2600,700]){ const sc=Math.min(1,maxSide/Math.max(nw,nh)); const w=Math.round(nw*sc), h=Math.round(nh*sc); const cx=cv.getContext('2d',{willReadFrequently:true});
+      if(rot){ cv.width=h; cv.height=w; cx.save(); cx.translate(h,0); cx.rotate(Math.PI/2); cx.drawImage(img,0,0,w,h); cx.restore(); } else { cv.width=w; cv.height=h; cx.drawImage(img,0,0,w,h); }
+      code=decodeCanvas(cv); if(code) return code; } }
+  return null;
+}
+function stopScan(){ if(!SCAN) return; clearInterval(SCAN.timer); clearTimeout(SCAN.hint); try{ SCAN.stream&&SCAN.stream.getTracks().forEach(t=>t.stop()); }catch(e){} SCAN=null; }
 function scanMsg(t){ const e=$('#scanmsg'); if(e) e.textContent=t; }
 function openScanner(){
-  openSheet(`<h2>Scan a barcode</h2><p class="note">Hold the barcode steady inside the frame. The number is looked up online.</p>
-   <div class="scanbox"><video id="scanvid" playsinline muted></video><i class="scanline"></i></div><div id="scanmsg" class="note mt8">Starting the camera...</div>
-   <form data-form="scanmanual" class="row mt16" style="gap:8px"><input class="inp" name="code" inputmode="numeric" placeholder="Or type the digits under the barcode" autocomplete="off"><button class="btn" type="submit">Look up</button></form>`);
+  openSheet(`<h2>Scan a barcode</h2><p class="note">Hold the barcode flat and steady inside the frame, about a hand's width away, in good light.</p>
+   <div class="scanbox"><video id="scanvid" playsinline webkit-playsinline muted autoplay></video><i class="scanline"></i></div><div id="scanmsg" class="note mt8">Starting the camera...</div>
+   <label class="btn block mt12" style="cursor:pointer">${BAR_ICON} Take a photo of the barcode<input class="sr" id="scanphoto" type="file" accept="image/*" capture="environment"></label>
+   <form data-form="scanmanual" class="row mt12" style="gap:8px"><input class="inp" name="code" inputmode="numeric" placeholder="Or type the digits under the barcode" autocomplete="off"><button class="btn" type="submit">Look up</button></form>`);
   startScan();
 }
+function camError(e){
+  const n=e&&e.name;
+  if(n==='NotAllowedError'||n==='SecurityError') return 'Camera access is blocked. On iPhone, open Settings > Safari > Camera and choose Ask or Allow, then reload this page. You can also use the photo button below.';
+  if(n==='NotFoundError'||n==='OverconstrainedError') return 'No usable camera was found. Use the photo button or type the number below.';
+  if(n==='NotReadableError') return 'The camera is in use by another app. Close it and try again, or use the photo button below.';
+  return 'The camera could not start ('+(n||'error')+'). Use the photo button or type the number below.';
+}
 async function startScan(){
-  stopScan(); SCAN={stream:null,timer:0,busy:false};
+  stopScan(); SCAN={stream:null,timer:0,hint:0,busy:false};
   const mine=SCAN;
-  try{ mine.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280}},audio:false}); }
-  catch(e){ scanMsg(e&&e.name==='NotAllowedError'?'Camera permission was denied. You can type the number below instead.':'No camera is available here, or the page is not on a secure connection. You can type the number below instead.'); SCAN=null; return; }
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){ scanMsg('This browser cannot open the camera from here. Use the photo button or type the number below.'); SCAN=null; return; }
+  try{ mine.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false}); }
+  catch(e){ scanMsg(camError(e)); SCAN=null; return; }
   const v=$('#scanvid'); if(!v||SCAN!==mine){ try{ mine.stream.getTracks().forEach(t=>t.stop()); }catch(e){} return; }
-  v.srcObject=mine.stream; try{ await v.play(); }catch(e){}
-  let det=null, cv=document.createElement('canvas');
+  try{ const tr=mine.stream.getVideoTracks()[0]; tr.applyConstraints({advanced:[{focusMode:'continuous'}]}).catch(()=>{}); }catch(e){}
+  v.srcObject=mine.stream; v.muted=true; v.setAttribute('playsinline',''); v.onclick=()=>{ try{ v.play(); }catch(e){} };
+  try{ await v.play(); }catch(e){ scanMsg('Tap the camera view to start it.'); }
+  let det=null; const cv=document.createElement('canvas');
   if('BarcodeDetector' in window){ try{ det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e']}); }catch(e){ det=null; } }
-  if(!det){ scanMsg('Loading the scanner...'); try{ await loadZXing(); }catch(e){ scanMsg('The scanner could not load (it needs a connection). You can type the number below instead.'); return; } }
-  scanMsg('Looking for a barcode...');
+  if(!det){ scanMsg('Loading the scanner...'); try{ await loadZXing(); }catch(e){ scanMsg('The scanner could not load (it needs a connection). Use the photo button or type the number below.'); } }
+  if(!det&&!window.ZXing) return;
+  scanMsg('Camera on. Looking for a barcode...');
+  mine.hint=setTimeout(()=>{ if(SCAN===mine) scanMsg('Still looking. Hold the barcode flat, 6 to 8 inches away, with good light. The photo button below often works best.'); },9000);
   mine.timer=setInterval(async()=>{
     if(!$('#scanvid')||SCAN!==mine){ if(SCAN===mine) stopScan(); else clearInterval(mine.timer); return; }
-    if(mine.busy||v.readyState<2) return; mine.busy=true;
+    if(mine.busy||v.readyState<2||!v.videoWidth) return; mine.busy=true;
     try{ let code=null;
       if(det){ const r=await det.detect(v); if(r.length) code=r[0].rawValue; }
-      else { const w=Math.min(960,v.videoWidth), h=Math.round(w*v.videoHeight/v.videoWidth); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(v,0,0,w,h); code=decodeCanvas(cv); }
+      if(!code&&window.ZXing) code=frameDecode(v,cv);
       if(code){ scanFound(code); }
-    }catch(e){} mine.busy=false; },det?300:350);
+    }catch(e){} mine.busy=false; },det?300:400);
 }
 async function scanFound(code){
   stopScan(); scanMsg('Found '+code+'. Looking it up...');
   const it=await lookupBarcode(code); closeSheet();
   if(!it){ toast('No match for barcode '+code+'. Try searching by name.'); M.mode='web'; WEB.q=''; if(view==='fuel'&&sub.fuel==='ingredients') render(); return; }
   toast('Found: '+it.n); webToEditor(it,false);
+}
+async function scanPhoto(file){
+  if(!file) return; stopScan(); scanMsg('Reading the photo...');
+  try{ await loadZXing(); }catch(e){ scanMsg('The scanner could not load (it needs a connection). Type the number instead.'); return; }
+  let code=null; try{ code=await decodePhoto(file); }catch(e){}
+  if(code) scanFound(code); else scanMsg('Could not read a barcode in that photo. Try again closer, flat, and in good light, or type the number.');
 }
 
 /* ---------- wiring ---------- */
@@ -147,3 +184,4 @@ document.addEventListener('input',e=>{ if(e.target.id==='usdakey'){ S.settings.u
 
 /* checkboxes carrying data-act: the global click handler ignores inputs, so dispatch on change */
 document.addEventListener('change',e=>{ const t=e.target; if(t&&t.type==='checkbox'&&t.dataset&&['gcare','rjoint','wsrctog'].includes(t.dataset.act)) ACT[t.dataset.act](t); });
+document.addEventListener('change',e=>{ const t=e.target; if(t&&t.id==='scanphoto'){ const f=t.files&&t.files[0]; t.value=''; scanPhoto(f); } });
